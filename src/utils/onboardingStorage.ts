@@ -1,0 +1,21 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const KEY = 'onboardingCompleted';
+
+export async function setOnboardingCompleted(completed: boolean): Promise<void> {
+  try {
+    await AsyncStorage.setItem(KEY, completed ? 'true' : 'false');
+  } catch (e) {
+    // Silently ignore; onboarding will show again if persistence fails
+  }
+}
+
+export async function getOnboardingCompleted(): Promise<boolean> {
+  try {
+    const value = await AsyncStorage.getItem(KEY);
+    return value === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
