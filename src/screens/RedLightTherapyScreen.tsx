@@ -1,12 +1,15 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getServices} from '../api/client';
 import {MedicalServiceCard} from '../components/MedicalServiceCard';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
@@ -16,30 +19,30 @@ import type {MedicalServiceItem} from '../types/serviceDetail';
 
 type Props = NativeStackScreenProps<RedLightTherapyStackParamList, 'RedLightMain'>;
 
-const RED_LIGHT_SERVICES: MedicalServiceItem[] = [
-  {
-    id: 'red-light-therapy',
-    title: 'Red Light Therapy',
-    shortDescription: 'Non-invasive photobiomodulation for recovery, skin and cellular health.',
-    fullDescription:
-      'Red light therapy uses specific wavelengths of light to support cellular energy production, recovery, and skin health. Sessions are brief and non-invasive, and can complement your IV and longevity protocol. Ask our team for session options and packages.',
-    image: require('../assets/images/Website_banner_2.jpg'),
-    bullets: [
-      'Photobiomodulation for cells',
-      'Recovery and muscle support',
-      'Skin and wellness benefits',
-      'Short, non-invasive sessions',
-    ],
-  },
-];
-
 export const RedLightTherapyScreen: React.FC<Props> = ({navigation}) => {
+  const [services, setServices] = useState<MedicalServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getServices('red_light')
+      .then(data => { if (!cancelled) setServices(data); })
+      .catch(err => { if (!cancelled) setError(err?.message ?? 'Failed to load'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   const toDetail = (item: MedicalServiceItem) => ({
     title: item.title,
     subtitle: item.subtitle,
     fullDescription: item.fullDescription,
     bullets: item.bullets,
     image: item.image,
+    price: item.price,
+    sessionInfo: item.sessionInfo,
+    tagline: item.tagline,
+    sections: item.sections,
   });
 
   return (
@@ -59,15 +62,38 @@ export const RedLightTherapyScreen: React.FC<Props> = ({navigation}) => {
       <Text style={styles.subtitle}>
         Non-invasive light therapy to support recovery, skin and cellular health.
       </Text>
-      {RED_LIGHT_SERVICES.map(item => (
-        <MedicalServiceCard
-          key={item.id}
-          item={item}
-          onKnowMore={() =>
-            navigation.navigate('ServiceDetail', {detail: toDetail(item)})
-          }
-        />
-      ))}
+      {loading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="small" color={colors.accentAqua} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorWrap}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Pressable
+            onPress={() => {
+              setError(null);
+              setLoading(true);
+              getServices('red_light')
+                .then(setServices)
+                .catch(e => setError(e?.message ?? 'Failed to load'))
+                .finally(() => setLoading(false));
+            }}
+            style={styles.retryBtn}>
+            <Text style={styles.retryBtnText}>Retry</Text>
+          </Pressable>
+        </View>
+      ) : (
+        services.map(item => (
+          <MedicalServiceCard
+            key={item.id}
+            item={item}
+            onKnowMore={() =>
+              navigation.navigate('ServiceDetail', {detail: toDetail(item)})
+            }
+          />
+        ))
+      )}
     </ScrollView>
   );
 };
@@ -110,5 +136,41 @@ const styles = StyleSheet.create({
     opacity: 0.75,
     lineHeight: 20,
     marginBottom: spacing.lg,
+  },
+  loadingWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.sm,
+  },
+  loadingText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+  },
+  errorWrap: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.accentRed,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  retryBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accentAqua,
+  },
+  retryBtnText: {
+    fontFamily: fonts.primary,
+    fontSize: 12,
+    fontWeight: fontWeights.medium as any,
+    color: colors.accentAqua,
   },
 });

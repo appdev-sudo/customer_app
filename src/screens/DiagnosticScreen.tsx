@@ -1,12 +1,15 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getServices} from '../api/client';
 import {MedicalServiceCard} from '../components/MedicalServiceCard';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
@@ -16,96 +19,30 @@ import type {MedicalServiceItem} from '../types/serviceDetail';
 
 type Props = NativeStackScreenProps<DiagnosticStackParamList, 'DiagnosticMain'>;
 
-const DIAGNOSTIC_SERVICES: MedicalServiceItem[] = [
-  {
-    id: 'pathology',
-    title: 'Pathology / Blood tests',
-    shortDescription: 'Comprehensive laboratory testing for all vital organs.',
-    fullDescription:
-      'Our pathology and blood testing services provide a complete picture of your health. We offer comprehensive laboratory testing covering metabolic panels, organ function, hormones, vitamins, and inflammatory markers — all interpreted in the context of longevity and preventive health.',
-    image: require('../assets/icons/pathology.png'),
-    bullets: [
-      'Complete blood count and metabolic panel',
-      'Organ function (liver, kidney, thyroid)',
-      'Vitamins and minerals',
-      'Inflammatory and cardiac markers',
-    ],
-  },
-  {
-    id: 'radiology',
-    title: 'Radiology - USG & X-ray',
-    shortDescription: 'AI-assisted ultrasound, Colour Doppler, Elastography, X-ray.',
-    fullDescription:
-      'Radiology at VytalYou includes ultrasound (USG), X-ray, and advanced imaging. We use AI-assisted ultrasound, Colour Doppler, and Elastography where indicated to assess organs and structures — supporting early detection and baseline health mapping.',
-    image: require('../assets/icons/endocrine.png'),
-    bullets: [
-      'Ultrasound (Abdomen, etc.)',
-      'X-Ray (Chest and others)',
-      'Colour Doppler and Elastography where indicated',
-    ],
-  },
-  {
-    id: 'cardiac',
-    title: 'Cardiac Evaluation',
-    subtitle: '2D/3D Echocardiogram, ECG',
-    shortDescription: 'ECG and 2D/3D ECHO for heart performance assessment.',
-    fullDescription:
-      'Cardiac evaluation includes ECG and 2D/3D Echocardiogram to assess heart structure and function. This forms a key part of our preventive longevity assessment, ensuring your cardiovascular system is optimised and any early concerns are identified.',
-    image: require('../assets/icons/ecg-machine.png'),
-    bullets: [
-      'ECG (Electrocardiogram)',
-      '2D Echocardiogram',
-      '3D Echocardiogram where indicated',
-    ],
-  },
-  {
-    id: 'body-composition',
-    title: 'Body Composition Analysis',
-    shortDescription: 'Advanced technology measuring obesity, muscle mass, inflammation, cellular age.',
-    fullDescription:
-      'Body composition analysis goes beyond weight. We use advanced technology to measure fat mass, muscle mass, visceral fat, inflammation markers, and cellular age — giving you a clear view of your metabolic and structural health for targeted interventions.',
-    image: require('../assets/icons/bio.png'),
-    bullets: [
-      'Fat and muscle distribution',
-      'Visceral fat and metabolic risk',
-      'Cellular and metabolic age indicators',
-    ],
-  },
-  {
-    id: 'genetics',
-    title: 'Genetics',
-    shortDescription: 'DNA-based insights into health risks and longevity potential.',
-    fullDescription:
-      'Our genetic testing provides DNA-based insights into your health risks, nutrient metabolism, and longevity potential. Results are interpreted by our doctors to personalise your IV therapy, supplements, and lifestyle recommendations.',
-    image: require('../assets/icons/dna.png'),
-    bullets: [
-      'Wellness and longevity-related genes',
-      'Nutrient and drug metabolism',
-      'Personalised interpretation by doctors',
-    ],
-  },
-  {
-    id: 'cancer-screening',
-    title: 'Cancer Screening',
-    shortDescription: 'Early cancer risk screening and preventive markers.',
-    fullDescription:
-      'Cancer screening at VytalYou is part of our preventive longevity approach. We use evidence-based markers and, where appropriate, imaging and tests to support early detection and risk stratification — always in consultation with your care plan.',
-    image: require('../assets/icons/pathology.png'),
-    bullets: [
-      'Evidence-based tumour markers where indicated',
-      'Integrated with full diagnostic picture',
-      'Doctor-supervised interpretation',
-    ],
-  },
-];
-
 export const DiagnosticScreen: React.FC<Props> = ({navigation}) => {
+  const [services, setServices] = useState<MedicalServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getServices('diagnostics')
+      .then(data => { if (!cancelled) setServices(data); })
+      .catch(err => { if (!cancelled) setError(err?.message ?? 'Failed to load'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   const toDetail = (item: MedicalServiceItem) => ({
     title: item.title,
     subtitle: item.subtitle,
     fullDescription: item.fullDescription,
     bullets: item.bullets,
     image: item.image,
+    price: item.price,
+    sessionInfo: item.sessionInfo,
+    tagline: item.tagline,
+    sections: item.sections,
   });
 
   return (
@@ -125,15 +62,38 @@ export const DiagnosticScreen: React.FC<Props> = ({navigation}) => {
       <Text style={styles.subtitle}>
         A complete diagnostic ecosystem to prevent disease and optimise longevity.
       </Text>
-      {DIAGNOSTIC_SERVICES.map(item => (
-        <MedicalServiceCard
-          key={item.id}
-          item={item}
-          onKnowMore={() =>
-            navigation.navigate('ServiceDetail', {detail: toDetail(item)})
-          }
-        />
-      ))}
+      {loading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="small" color={colors.accentAqua} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorWrap}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Pressable
+            onPress={() => {
+              setError(null);
+              setLoading(true);
+              getServices('diagnostics')
+                .then(setServices)
+                .catch(e => setError(e?.message ?? 'Failed to load'))
+                .finally(() => setLoading(false));
+            }}
+            style={styles.retryBtn}>
+            <Text style={styles.retryBtnText}>Retry</Text>
+          </Pressable>
+        </View>
+      ) : (
+        services.map(item => (
+          <MedicalServiceCard
+            key={item.id}
+            item={item}
+            onKnowMore={() =>
+              navigation.navigate('ServiceDetail', {detail: toDetail(item)})
+            }
+          />
+        ))
+      )}
     </ScrollView>
   );
 };
@@ -176,5 +136,41 @@ const styles = StyleSheet.create({
     opacity: 0.75,
     lineHeight: 20,
     marginBottom: spacing.lg,
+  },
+  loadingWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.sm,
+  },
+  loadingText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+  },
+  errorWrap: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.accentRed,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  retryBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accentAqua,
+  },
+  retryBtnText: {
+    fontFamily: fonts.primary,
+    fontSize: 12,
+    fontWeight: fontWeights.medium as any,
+    color: colors.accentAqua,
   },
 });

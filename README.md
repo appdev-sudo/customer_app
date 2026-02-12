@@ -62,6 +62,13 @@ If everything is set up correctly, you should see your new app running in the An
 
 This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
+## Backend API
+
+The app loads **IV Drips**, **Diagnostics**, **Red Light Therapy**, and **Hyperbaric Oxygen** from the VytalYou backend. Start the backend from the `backend` folder (`npm run dev`).
+
+- **API base URL** is set in `src/config/api.ts`: Android emulator uses `http://10.0.2.2:4000`, iOS simulator uses `http://localhost:4000`.
+- **Physical device**: change `API_BASE_URL` in `src/config/api.ts` to your computer’s LAN IP (e.g. `http://192.168.1.5:4000`) so the device can reach the backend.
+
 ## Step 3: Modify your app
 
 Now that you have successfully run the app, let's make changes!

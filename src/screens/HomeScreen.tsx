@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
@@ -13,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getServices} from '../api/client';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
@@ -118,8 +120,9 @@ const FAQ_ITEMS: {q: string; a: string}[] = [
   },
 ];
 
-/** IV Drips services (below Longevity Subscription) */
-const IV_DRIP_SERVICES: MedicalServiceItem[] = [
+/** IV Drips: loaded from API; static list kept as fallback only (unused when API succeeds) */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const IV_DRIP_SERVICES_FALLBACK: MedicalServiceItem[] = [
   {
     id: 'complete-recode',
     title: 'The Complete Recode',
@@ -279,19 +282,6 @@ const IV_DRIP_SERVICES: MedicalServiceItem[] = [
       'Medical supervision',
     ],
   },
-  {
-    id: 'alpha-executive',
-    title: 'Alpha Executive',
-    shortDescription: 'IV support for high-performing professionals.',
-    fullDescription:
-      'Alpha Executive is IV therapy designed for high-performing professionals. It supports mental clarity, energy, stress resilience, and cellular health — so you can perform at your best without burning out.',
-    image: require('../assets/icons/saline-drip.png'),
-    bullets: [
-      'Mental clarity and energy',
-      'Stress resilience',
-      'Cellular health for longevity',
-    ],
-  },
 ];
 
 /** How It Works steps from index.php (SECTION 7) */
@@ -309,6 +299,18 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
   const [longevityIndex, setLongevityIndex] = useState(0);
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null);
   const servicesOffsetRef = useRef(0);
+  const [ivDripServices, setIvDripServices] = useState<MedicalServiceItem[]>([]);
+  const [ivDripsLoading, setIvDripsLoading] = useState(true);
+  const [ivDripsError, setIvDripsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getServices('iv_drips')
+      .then(data => { if (!cancelled) setIvDripServices(data); })
+      .catch(err => { if (!cancelled) setIvDripsError(err?.message ?? 'Failed to load IV drips'); })
+      .finally(() => { if (!cancelled) setIvDripsLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -394,10 +396,9 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
       </View>
 
       {/* Hero – bordered box, text left, image right (like carousel) */}
-      <View style={styles.heroBox}>
+      {/* <View style={styles.heroBox}>
         <View style={styles.heroLeft}>
           <Text style={styles.heroTitle}>Decode Health.{'\n'}Measure Wellness.{'\n'}Redesign Your Biology.</Text>
-          {/* <Text style={styles.heroPara}>We add years to your life through preventive science and personalized IV therapy.</Text> */}
           <Text style={styles.heroSub}>India's first preventive longevity centre · Doctor-supervised</Text>
           <Pressable onPress={handleBookConsultation} style={styles.heroCta}>
             <Text style={styles.heroCtaText}>Book free consultation</Text>
@@ -410,12 +411,12 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
             resizeMode="cover"
           />
         </View>
-      </View>
+      </View> */}
 
-      <View style={styles.sectionDividerLine} />
+      {/* <View style={styles.sectionDividerLine} /> */}
 
       {/* Longevity */}
-      <Text style={styles.whySub}>Because longevity starts with understanding you</Text>
+      {/* <Text style={styles.whySub}>Because longevity starts with understanding you</Text>
       <Text style={styles.sectionTitle}>Longevity Subscriptions</Text>
       <View style={styles.carouselWrap}>
         <FlatList
@@ -431,42 +432,63 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
             setLongevityIndex(i);
           }}
         />
-      </View>
+      </View> */}
 
-      <View style={styles.dots}>
+      {/* <View style={styles.dots}>
         {LONGEVITY_PACKAGES.map((_, i) => (
           <View
             key={i}
             style={[styles.dot, i === longevityIndex && styles.dotActive]}
           />
         ))}
-      </View>
+      </View> */}
 
-      {/* IV Drips — below Longevity Subscription */}
-      <View style={styles.sectionDividerLine} />
+      {/* IV Drips — from API */}
       <Text style={styles.sectionTitle}>IV Drips</Text>
-      <Text style={styles.ivDripsStrikethrough}>Detox</Text>
-      {IV_DRIP_SERVICES.map(item => (
-        <MedicalServiceCard
-          key={item.id}
-          item={item}
-          onKnowMore={() =>
-            navigation.navigate('ServiceDetail', {
-              detail: {
-                title: item.title,
-                subtitle: item.subtitle,
-                fullDescription: item.fullDescription,
-                bullets: item.bullets,
-                image: item.image,
-                price: item.price,
-                sessionInfo: item.sessionInfo,
-                tagline: item.tagline,
-                sections: item.sections,
-              },
-            })
-          }
-        />
-      ))}
+      {ivDripsLoading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="small" color={colors.accentAqua} />
+          <Text style={styles.loadingText}>Loading IV drips...</Text>
+        </View>
+      ) : ivDripsError ? (
+        <View style={styles.errorWrap}>
+          <Text style={styles.errorText}>{ivDripsError}</Text>
+          <Pressable
+            onPress={() => {
+              setIvDripsError(null);
+              setIvDripsLoading(true);
+              getServices('iv_drips')
+                .then(setIvDripServices)
+                .catch(e => setIvDripsError(e?.message ?? 'Failed to load'))
+                .finally(() => setIvDripsLoading(false));
+            }}
+            style={styles.retryButton}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </Pressable>
+        </View>
+      ) : (
+        ivDripServices.map(item => (
+          <MedicalServiceCard
+            key={item.id}
+            item={item}
+            onKnowMore={() =>
+              navigation.navigate('ServiceDetail', {
+                detail: {
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  fullDescription: item.fullDescription,
+                  bullets: item.bullets,
+                  image: item.image,
+                  price: item.price,
+                  sessionInfo: item.sessionInfo,
+                  tagline: item.tagline,
+                  sections: item.sections,
+                },
+              })
+            }
+          />
+        ))
+      )}
 
       <View style={styles.sectionDividerLine} />
 
@@ -1062,5 +1084,41 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     opacity: 0.7,
     marginBottom: spacing.lg,
+  },
+  loadingWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.sm,
+  },
+  loadingText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+  },
+  errorWrap: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.accentRed,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  retryButton: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accentAqua,
+  },
+  retryButtonText: {
+    fontFamily: fonts.primary,
+    fontSize: 12,
+    fontWeight: fontWeights.medium as any,
+    color: colors.accentAqua,
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {HomeStack} from './HomeStack';
 import {DiagnosticStack} from './DiagnosticStack';
 import {RedLightTherapyStack} from './RedLightTherapyStack';
@@ -37,22 +38,42 @@ export const AppTabs: React.FC = () => {
       <Tab.Screen
         name="IVDrips"
         component={HomeStack}
-        options={{tabBarLabel: 'IV Drips'}}
+        options={{
+          tabBarLabel: 'IV Drips',
+          tabBarIcon: ({color, size}) => (
+            <MaterialCommunityIcons name="iv-bag" color={color} size={size} />
+          ),
+        }}
       />
       <Tab.Screen
         name="Diagnostic"
         component={DiagnosticStack}
-        options={{tabBarLabel: 'Diagnostic'}}
+        options={{
+          tabBarLabel: 'Diagnostic',
+          tabBarIcon: ({color, size}) => (
+            <MaterialCommunityIcons name="pulse" color={color} size={size} />
+          ),
+        }}
       />
       <Tab.Screen
         name="RedLightTherapy"
         component={RedLightTherapyStack}
-        options={{tabBarLabel: 'Red Light'}}
+        options={{
+          tabBarLabel: 'Red Light',
+          tabBarIcon: ({color, size}) => (
+            <MaterialCommunityIcons name="lightbulb-on" color={color} size={size} />
+          ),
+        }}
       />
       <Tab.Screen
         name="HyperbaricOxygen"
         component={HyperbaricOxygenStack}
-        options={{tabBarLabel: 'Hyperbaric O₂'}}
+        options={{
+          tabBarLabel: 'Hyperbaric O₂',
+          tabBarIcon: ({color, size}) => (
+            <MaterialCommunityIcons name="diving-helmet" color={color} size={size} />
+          ),
+        }}
       />
       {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
     </Tab.Navigator>

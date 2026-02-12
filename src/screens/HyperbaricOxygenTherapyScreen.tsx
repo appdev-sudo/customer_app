@@ -1,12 +1,15 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {getServices} from '../api/client';
 import {MedicalServiceCard} from '../components/MedicalServiceCard';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
@@ -16,30 +19,30 @@ import type {MedicalServiceItem} from '../types/serviceDetail';
 
 type Props = NativeStackScreenProps<HyperbaricOxygenStackParamList, 'HyperbaricMain'>;
 
-const HYPERBARIC_SERVICES: MedicalServiceItem[] = [
-  {
-    id: 'hyperbaric-oxygen',
-    title: 'Hyperbaric Oxygen Therapy',
-    shortDescription: 'Pressurised oxygen therapy to support recovery and cellular function.',
-    fullDescription:
-      'Hyperbaric Oxygen Therapy (HBOT) delivers 100% oxygen at increased pressure in a controlled chamber. This can support wound healing, recovery, and cellular function. Sessions are supervised and tailored to your goals. Enquire for availability and packages.',
-    image: require('../assets/images/Website_banner_2.jpg'),
-    bullets: [
-      '100% oxygen at increased pressure',
-      'Supports recovery and healing',
-      'Supervised, controlled sessions',
-      'Tailored to your protocol',
-    ],
-  },
-];
-
 export const HyperbaricOxygenTherapyScreen: React.FC<Props> = ({navigation}) => {
+  const [services, setServices] = useState<MedicalServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getServices('hyperbaric')
+      .then(data => { if (!cancelled) setServices(data); })
+      .catch(err => { if (!cancelled) setError(err?.message ?? 'Failed to load'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   const toDetail = (item: MedicalServiceItem) => ({
     title: item.title,
     subtitle: item.subtitle,
     fullDescription: item.fullDescription,
     bullets: item.bullets,
     image: item.image,
+    price: item.price,
+    sessionInfo: item.sessionInfo,
+    tagline: item.tagline,
+    sections: item.sections,
   });
 
   return (
@@ -59,15 +62,38 @@ export const HyperbaricOxygenTherapyScreen: React.FC<Props> = ({navigation}) => 
       <Text style={styles.subtitle}>
         Pressurised oxygen in a controlled environment to support recovery and cellular health.
       </Text>
-      {HYPERBARIC_SERVICES.map(item => (
-        <MedicalServiceCard
-          key={item.id}
-          item={item}
-          onKnowMore={() =>
-            navigation.navigate('ServiceDetail', {detail: toDetail(item)})
-          }
-        />
-      ))}
+      {loading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="small" color={colors.accentAqua} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorWrap}>
+          <Text style={styles.errorText}>{error}</Text>
+          <Pressable
+            onPress={() => {
+              setError(null);
+              setLoading(true);
+              getServices('hyperbaric')
+                .then(setServices)
+                .catch(e => setError(e?.message ?? 'Failed to load'))
+                .finally(() => setLoading(false));
+            }}
+            style={styles.retryBtn}>
+            <Text style={styles.retryBtnText}>Retry</Text>
+          </Pressable>
+        </View>
+      ) : (
+        services.map(item => (
+          <MedicalServiceCard
+            key={item.id}
+            item={item}
+            onKnowMore={() =>
+              navigation.navigate('ServiceDetail', {detail: toDetail(item)})
+            }
+          />
+        ))
+      )}
     </ScrollView>
   );
 };
@@ -110,5 +136,41 @@ const styles = StyleSheet.create({
     opacity: 0.75,
     lineHeight: 20,
     marginBottom: spacing.lg,
+  },
+  loadingWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.sm,
+  },
+  loadingText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.textMuted,
+  },
+  errorWrap: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    color: colors.accentRed,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  retryBtn: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.accentAqua,
+  },
+  retryBtnText: {
+    fontFamily: fonts.primary,
+    fontSize: 12,
+    fontWeight: fontWeights.medium as any,
+    color: colors.accentAqua,
   },
 });
