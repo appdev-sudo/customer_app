@@ -11,6 +11,7 @@ import {
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getServices} from '../api/client';
 import {MedicalServiceCard} from '../components/MedicalServiceCard';
+import {ProfileIcon} from '../components/ProfileIcon';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
@@ -34,6 +35,7 @@ export const DiagnosticScreen: React.FC<Props> = ({navigation}) => {
   }, []);
 
   const toDetail = (item: MedicalServiceItem) => ({
+    id: item.id,
     title: item.title,
     subtitle: item.subtitle,
     fullDescription: item.fullDescription,
@@ -56,6 +58,7 @@ export const DiagnosticScreen: React.FC<Props> = ({navigation}) => {
           style={styles.logo}
           resizeMode="contain"
         />
+        <ProfileIcon onPress={() => navigation.navigate('Profile' as any)} />
       </View>
       <Text style={styles.sectionLabel}>Diagnostics</Text>
       <Text style={styles.title}>Our Diagnostic Services</Text>
@@ -109,6 +112,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: spacing.lg,
   },
   logo: {width: 120, height: 38},

@@ -9,16 +9,15 @@ import {spacing} from '../theme/spacing';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'LongevityPackageDetails'>;
 
-export const LongevityPackageDetailsScreen: React.FC<Props> = ({route}) => {
+export const LongevityPackageDetailsScreen: React.FC<Props> = ({route, navigation}) => {
   const {pkg} = route.params as {pkg: LongevityPackage};
 
   const handleEnquire = async () => {
-    // Source: `vytalyou_website/index.php` packages "Enquire Now" link (L709, L752, L772, L792)
-    const url = 'https://wa.me/919967526793';
-    const canOpen = await Linking.canOpenURL(url);
-    if (canOpen) {
-      Linking.openURL(url);
-    }
+    // Navigate to BookAppointment
+    navigation.navigate('BookAppointment', {
+      serviceId: pkg.id,
+      serviceTitle: pkg.title,
+    });
   };
 
   return (
@@ -48,7 +47,7 @@ export const LongevityPackageDetailsScreen: React.FC<Props> = ({route}) => {
       </View>
 
       <Pressable onPress={handleEnquire} style={styles.enquireButton}>
-        <Text style={styles.enquireText}>Enquire Now</Text>
+        <Text style={styles.enquireText}>Book Appointment</Text>
       </Pressable>
     </ScrollView>
   );

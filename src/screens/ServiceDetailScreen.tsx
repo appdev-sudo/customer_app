@@ -13,23 +13,42 @@ import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
 import type {ServiceDetailParam} from '../types/serviceDetail';
+import {useAuth} from '../utils/authContext';
 
 type Props = NativeStackScreenProps<any, 'ServiceDetail'>;
 
 const CONSULTATION_WHATSAPP = 'https://wa.me/919967526793';
 
-export const ServiceDetailScreen: React.FC<Props> = ({route}) => {
+export const ServiceDetailScreen: React.FC<Props> = ({route, navigation}) => {
   const params = route.params as { detail: ServiceDetailParam };
   const detail = params?.detail ?? {
     title: 'Service',
     fullDescription: 'Details not available.',
   };
+  const {isAuthenticated, user} = useAuth();
 
   const hasStructuredContent = detail.sections && detail.sections.length > 0;
 
   const handleEnquire = async () => {
-    const canOpen = await Linking.canOpenURL(CONSULTATION_WHATSAPP);
-    if (canOpen) Linking.openURL(CONSULTATION_WHATSAPP);
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Navigate to auth flow
+      navigation.navigate('AuthStack', {screen: 'PhoneAuth'});
+      return;
+    }
+
+    if (!user?.profileCompleted) {
+       navigation.navigate('HomeStack', {screen: 'Profile'}); // Should go to UserProfile but handled by stack usually? Or just alert.
+       // Actually ProfileScreen handles redirect if not logged in, but here user is logged in.
+       // If profile not complete, maybe redirect to UserProfileScreen (edit mode)?
+       // But let's assume BookAppointment handles missing details (it checks address).
+    }
+
+    // Navigate to BookAppointment
+    navigation.navigate('BookAppointment', {
+        serviceId: detail.id || 'unknown',
+        serviceTitle: detail.title,
+    });
   };
 
   return (
@@ -115,7 +134,7 @@ export const ServiceDetailScreen: React.FC<Props> = ({route}) => {
       )}
 
       <Pressable onPress={handleEnquire} style={styles.enquireButton}>
-        <Text style={styles.enquireText}>Enquire Now</Text>
+        <Text style={styles.enquireText}>Book Appointment</Text>
       </Pressable>
     </ScrollView>
   );

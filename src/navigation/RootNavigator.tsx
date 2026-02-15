@@ -1,14 +1,20 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {OnboardingScreen} from '../screens/OnboardingScreen';
 import {AppTabs} from './AppTabs';
+import {AuthStack} from './AuthStack';
 import {getOnboardingCompleted} from '../utils/onboardingStorage';
+import {AuthProvider, useAuth} from '../utils/authContext';
 import {colors} from '../theme/colors';
 
-export const RootNavigator: React.FC = () => {
+const Stack = createNativeStackNavigator();
+
+const RootNavigatorContent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompletedState] = useState(false);
+  const {loading: authLoading} = useAuth();
 
   useEffect(() => {
     (async () => {
@@ -22,7 +28,7 @@ export const RootNavigator: React.FC = () => {
     setOnboardingCompletedState(true);
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.accentAqua} />
@@ -36,8 +42,19 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <NavigationContainer>
-      <AppTabs />
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="AppTabs" component={AppTabs} />
+        <Stack.Screen name="AuthStack" component={AuthStack} />
+      </Stack.Navigator>
     </NavigationContainer>
+  );
+};
+
+export const RootNavigator: React.FC = () => {
+  return (
+    <AuthProvider>
+      <RootNavigatorContent />
+    </AuthProvider>
   );
 };
 
@@ -49,4 +66,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-

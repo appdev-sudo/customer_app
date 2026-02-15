@@ -22,6 +22,7 @@ import type {HomeStackParamList} from '../navigation/HomeStack';
 import type {LongevityPackage} from '../types/longevity';
 import type {MedicalServiceItem} from '../types/serviceDetail';
 import {MedicalServiceCard} from '../components/MedicalServiceCard';
+import {ProfileIcon} from '../components/ProfileIcon';
 
 const {width} = Dimensions.get('window');
 
@@ -388,11 +389,14 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
             placeholderTextColor="rgba(255,255,255,0.45)"
           />
         </View>
-        <Image
-          source={require('../assets/images/logo-03.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <View style={styles.topBarRight}>
+          <Image
+            source={require('../assets/images/logo-03.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <ProfileIcon onPress={() => navigation.navigate('Profile')} />
+        </View>
       </View>
 
       {/* Hero – bordered box, text left, image right (like carousel) */}
@@ -474,6 +478,7 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
             onKnowMore={() =>
               navigation.navigate('ServiceDetail', {
                 detail: {
+                  id: item.id,
                   title: item.title,
                   subtitle: item.subtitle,
                   fullDescription: item.fullDescription,
@@ -614,6 +619,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.xl,
+  },
+  topBarRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   searchBarWrap: {
     flex: 1,

@@ -5,7 +5,7 @@
 const getDefaultBaseUrl = () => {
   if (__DEV__) {
     // Using ngrok tunnel to reach backend from mobile device
-    return 'https://a743-2409-40c0-6c-b87c-510a-6658-734d-b33f.ngrok-free.app';
+    return 'https://f82a-2409-40c0-5d-ddae-bd1f-ef86-3d4-ddb2.ngrok-free.app';
   }
   return 'https://your-api-domain.com'; // replace with production API URL
 };
@@ -19,6 +19,12 @@ export const API_ENDPOINTS = {
   authSignup: '/api/auth/signup',
   authLogin: '/api/auth/login',
   authMe: '/api/auth/me',
+  // Phone authentication
+  phoneSendOTP: '/api/auth/phone/send-otp',
+  phoneVerifyOTP: '/api/auth/phone/verify-otp',
+  phoneResendOTP: '/api/auth/phone/resend-otp',
+  // Profile
+  profile: '/api/profile',
   bookings: '/api/bookings',
   bookingsMe: '/api/bookings/me',
   bookingById: (id: string) => `/api/bookings/${id}`,

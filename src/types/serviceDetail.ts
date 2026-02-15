@@ -6,6 +6,7 @@ export type DetailSection = {
 };
 
 export type ServiceDetailParam = {
+  id?: string;
   title: string;
   subtitle?: string;
   fullDescription?: string;
