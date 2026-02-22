@@ -17,7 +17,7 @@ export const MedicalServiceCard: React.FC<CardProps> = ({item, onKnowMore}) => {
         <Image
           source={item.image}
           style={styles.image}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       </View>
       <View style={styles.body}>

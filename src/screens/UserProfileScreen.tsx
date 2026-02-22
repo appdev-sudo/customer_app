@@ -53,7 +53,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
     setFormData(prev => ({...prev, [field]: value}));
   };
 
-  const updateAddress = (field: keyof typeof formData.location.address, value: string) => {
+  const updateAddress = (field: keyof NonNullable<ProfileData['location']>['address'], value: string) => {
     setFormData(prev => ({
       ...prev,
       location: {
@@ -313,7 +313,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
               style={styles.input}
               placeholder="Flat / House No / Building"
               placeholderTextColor={colors.textSecondary}
-              value={formData.location?.address.formattedAddress} // Using formattedAddress as a catch-all for now or let them edit
+              value={formData.location?.address.formattedAddress || ''}
               onChangeText={value => updateAddress('formattedAddress', value)}
               editable={!loading}
               multiline
@@ -323,7 +323,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
               style={styles.input}
               placeholder="Street / Area"
               placeholderTextColor={colors.textSecondary}
-              value={formData.location?.address.street}
+              value={formData.location?.address.street || ''}
               onChangeText={value => updateAddress('street', value)}
               editable={!loading}
             />
@@ -332,7 +332,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
               style={styles.input}
               placeholder="Landmark"
               placeholderTextColor={colors.textSecondary}
-              value={formData.location?.address.landmark}
+              value={formData.location?.address.landmark || ''}
               onChangeText={value => updateAddress('landmark', value)}
               editable={!loading}
             />
@@ -342,7 +342,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
                 style={[styles.input, {flex: 1}]}
                 placeholder="City"
                 placeholderTextColor={colors.textSecondary}
-                value={formData.location?.address.city}
+                value={formData.location?.address.city || ''}
                 onChangeText={value => updateAddress('city', value)}
                 editable={!loading}
               />
@@ -350,7 +350,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
                 style={[styles.input, {flex: 1}]}
                 placeholder="Pincode"
                 placeholderTextColor={colors.textSecondary}
-                value={formData.location?.address.pincode}
+                value={formData.location?.address.pincode || ''}
                 onChangeText={value => updateAddress('pincode', value)}
                 editable={!loading}
               />
@@ -360,7 +360,7 @@ export const UserProfileScreen: React.FC<Props> = ({navigation}) => {
               style={styles.input}
               placeholder="State"
               placeholderTextColor={colors.textSecondary}
-              value={formData.location?.address.state}
+              value={formData.location?.address.state || ''}
               onChangeText={value => updateAddress('state', value)}
               editable={!loading}
             />

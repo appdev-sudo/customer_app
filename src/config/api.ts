@@ -5,7 +5,7 @@
 const getDefaultBaseUrl = () => {
   if (__DEV__) {
     // Using ngrok tunnel to reach backend from mobile device
-    return 'https://f82a-2409-40c0-5d-ddae-bd1f-ef86-3d4-ddb2.ngrok-free.app';
+    return 'https://787c-2409-40c0-7e-c6d1-917f-ddef-5394-307e.ngrok-free.app';
   }
   return 'https://your-api-domain.com'; // replace with production API URL
 };
