@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundNavy,
   },
   content: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxl + 90,
   },
   hero: {
     height: 180,

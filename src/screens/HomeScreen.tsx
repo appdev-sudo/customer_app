@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useMemo} from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -77,15 +77,14 @@ const LONGEVITY_PACKAGES: LongevityPackage[] = [
 /** Healthcare services for home carousel (Image 1 – "Healthcare Services at your Doorstep") */
 type HomeService = {id: string; title: string; icon: any};
 const HOME_SERVICES: HomeService[] = [
-  {id: 'lab-tests', title: 'Lab Tests', icon: require('../assets/icons/pathology.png')},
-  {id: 'weight-loss', title: 'Weight Loss Program', icon: require('../assets/icons/bio.png')},
-  {id: 'iv-therapy', title: 'IV Therapy', icon: require('../assets/icons/saline-drip.png')},
-  {id: 'newborn-care', title: 'Newborn Care & Babysitting', icon: require('../assets/icons/endocrine.png')},
-  {id: 'food-intolerance', title: 'Food Intolerance Test', icon: require('../assets/icons/dna.png')},
-  {id: 'doctor-on-call', title: 'Doctor on Call', icon: require('../assets/icons/ecg-machine.png')},
-  {id: 'sexual-health', title: 'Sexual Health', icon: require('../assets/icons/dna.png')},
-  {id: 'create-test', title: 'Create your own test', icon: require('../assets/icons/pathology.png')},
-  {id: 'doctor-guided', title: 'Doctor-guided', icon: require('../assets/icons/ecg-machine.png')},
+  {id: 'longevity-report', title: 'Ultra Precision Longevity Report', icon: require('../assets/icons/bio.png')},
+  {id: 'blood-test', title: 'Blood Test', icon: require('../assets/icons/pathology.png')},
+  {id: 'ultrasonography', title: 'Ultrasonography', icon: require('../assets/icons/ecg-machine.png')},
+  {id: 'x-ray', title: 'X-ray', icon: require('../assets/icons/bio.png')},
+  {id: '2d-echocardiogram', title: '2d Echocardiogram', icon: require('../assets/icons/ecg-machine.png')},
+  {id: 'ecg', title: 'ECG', icon: require('../assets/icons/ecg-machine.png')},
+  {id: 'body-composition', title: 'Body Composition Evaluation', icon: require('../assets/icons/endocrine.png')},
+  {id: 'genetic-tests', title: 'Genetic Tests', icon: require('../assets/icons/dna.png')},
 ];
 
 const CONSULTATION_WHATSAPP = 'https://wa.me/919967526793';
@@ -120,6 +119,46 @@ const FAQ_ITEMS: {q: string; a: string}[] = [
     a: 'NAD+ infusions may take up to 3 hours. Other personalised drips typically take 15–30 minutes.',
   },
 ];
+
+const COMPLETE_BODY_EVALUATION: MedicalServiceItem = {
+  id: 'complete-body-evaluation',
+  title: 'Complete Body Evaluation',
+  subtitle: 'With Predictive Longevity Report',
+  tagline: 'Know your health today. Protect your years ahead.',
+  fullDescription: 'At Vytalyou, health screening goes beyond routine testing. Our Complete Body Evaluation combines advanced diagnostics, metabolic risk detection, and preventive imaging to reveal early warning signs of future disease—before symptoms appear. This is not just a check-up. It is a clarity-driven roadmap to longer, healthier living. It will generate your ultraprecision AI guided Composite Longevity Score with estimated biological age drift.\n\nThe Vytalyou Difference:\n• Predictive—not just preventive.\n• Focused on biological age versus chronological age.\n• Integrated metabolic, cardiac, and imaging insights.\n• Delivered with a clear, doctor-interpreted Longevity Report.\n• 10-year morbidity and mortality prediction graph\n• Physician\'s recommendations to preserve and improve health\n\nLongevity is not about adding years after illness—it is about protecting health before decline begins.\n\nVytalyou - Precision Health. Predictive Longevity.',
+  image: require('../assets/images/Website_banner_2.jpg'),
+  sections: [
+    {
+      title: '1. Comprehensive Blood Evaluation',
+      items: [
+        'Routine Health Profile: Complete Blood Count (CBC), Fasting Blood Glucose, Lipid Profile, Thyroid Function Test, Liver Function Test, Kidney Function Test, Serum Electrolytes, Vitamin B12, Urine Routine & Microscopy',
+        'Inflammation Markers: ASO, RF, Iron profile, Serum Ferritin, hs-CRP (Vascular inflammation)',
+        'Cancer Markers: ESR, CEA, CA-19.9, CA-125, PSA',
+        'Metabolic and Cardiac Markers: HbA1c, Fasting Insulin, HOMA-IR (Insulin resistance marker), Apo A1/Apo B (Cardiovascular risk indicator), Vitamin D, Homocysteine (Heart & brain aging marker)'
+      ]
+    },
+    {
+      title: '2. Full Body Composition Scan (Inbody 970S)',
+      items: ['Includes body fat percentage, visceral fat, muscle mass, and metabolic indicators to track true fitness and biological age']
+    },
+    {
+      title: '3. Ultrasound Abdomen & Pelvis',
+      items: ['Screens for fatty liver, gallbladder, kidney, and pelvic abnormalities—often before symptoms appear.']
+    },
+    {
+      title: '4. Chest X-Ray',
+      items: ['Evaluates lung health, cardiac size, and hidden structural or infectious changes.']
+    },
+    {
+      title: '5. 2D Echocardiography',
+      items: ['Assesses heart structure, pumping function, valve health, and early cardiac dysfunction.']
+    },
+    {
+      title: '6. Electrocardiogram (ECG)',
+      items: ['Detects rhythm abnormalities, silent ischemia, and overall electrical heart health.']
+    }
+  ]
+};
 
 /** IV Drips: loaded from API; static list kept as fallback only (unused when API succeeds) */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -303,6 +342,19 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
   const [ivDripServices, setIvDripServices] = useState<MedicalServiceItem[]>([]);
   const [ivDripsLoading, setIvDripsLoading] = useState(true);
   const [ivDripsError, setIvDripsError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const searchResults = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return [];
+
+    const allServices = [COMPLETE_BODY_EVALUATION, ...ivDripServices];
+    return allServices.filter(item => 
+      item.title.toLowerCase().includes(query) || 
+      (item.subtitle && item.subtitle.toLowerCase().includes(query)) ||
+      (item.tagline && item.tagline.toLowerCase().includes(query))
+    );
+  }, [searchQuery, ivDripServices]);
 
   useEffect(() => {
     let cancelled = false;
@@ -374,6 +426,14 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
     </View>
   );
 
+  const renderComingSoonCard = (keyPrefix: string) => (
+    <View key={`coming-soon-${keyPrefix}`} style={styles.comingSoonCard}>
+      <Text style={styles.comingSoonIcon}>✨</Text>
+      <Text style={styles.comingSoonTitle}>More coming soon</Text>
+      <Text style={styles.comingSoonDesc}>Stay tuned for new additions</Text>
+    </View>
+  );
+
   return (
     <ScrollView
       style={styles.root}
@@ -387,6 +447,8 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
             style={styles.searchBarInput}
             placeholder="Search services..."
             placeholderTextColor="rgba(255,255,255,0.45)"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
           />
         </View>
         <View style={styles.topBarRight}>
@@ -447,6 +509,82 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
         ))}
       </View> */}
 
+      {/* Search Results vs Normal Screen Content */}
+      {searchQuery.trim().length > 0 ? (
+        <View style={{ paddingTop: spacing.md }}>
+          <Text style={styles.sectionTitle}>Search Results</Text>
+          <View style={styles.ivDripsContainer}>
+            {searchResults.length > 0 ? (
+              searchResults.map(item => (
+                <MedicalServiceCard
+                  key={item.id}
+                  item={item}
+                  onKnowMore={() =>
+                    navigation.navigate('ServiceDetail', {
+                      detail: {
+                        id: item.id,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        fullDescription: item.fullDescription,
+                        bullets: item.bullets,
+                        image: item.image,
+                        price: item.price,
+                        sessionInfo: item.sessionInfo,
+                        tagline: item.tagline,
+                        sections: item.sections,
+                        serviceType: item.serviceType,
+                      },
+                    })
+                  }
+                />
+              ))
+            ) : (
+              <Text style={{ ...styles.errorText as any, width: '100%', marginTop: spacing.xl }}>
+                No services found for "{searchQuery}"
+              </Text>
+            )}
+          </View>
+        </View>
+      ) : (
+        <>
+          {/* Complete Body Evaluation Banner */}
+          {/* <Text style={styles.sectionTitle}>Evaluations</Text> */}
+          <Pressable
+        style={styles.evaluationBanner}
+        onPress={() =>
+          navigation.navigate('ServiceDetail', {
+            detail: {
+              id: COMPLETE_BODY_EVALUATION.id,
+              title: COMPLETE_BODY_EVALUATION.title,
+              subtitle: COMPLETE_BODY_EVALUATION.subtitle,
+              fullDescription: COMPLETE_BODY_EVALUATION.fullDescription,
+              image: COMPLETE_BODY_EVALUATION.image,
+              tagline: COMPLETE_BODY_EVALUATION.tagline,
+              sections: COMPLETE_BODY_EVALUATION.sections,
+            },
+          })
+        }>
+        <View style={styles.evaluationLeft}>
+          <Text style={styles.evaluationTitle}>{COMPLETE_BODY_EVALUATION.title}</Text>
+          <Text style={styles.evaluationSubtitle}>{COMPLETE_BODY_EVALUATION.subtitle}</Text>
+          <Text style={styles.evaluationTagline} numberOfLines={2}>
+            {COMPLETE_BODY_EVALUATION.tagline}
+          </Text>
+          <View style={styles.evaluationKnowMore}>
+            <Text style={styles.evaluationKnowMoreText}>Explore ➔</Text>
+          </View>
+        </View>
+        <View style={styles.evaluationRight}>
+          <Image
+            source={require('../assets/images/image.png')} // Same fallback image to keep consistency
+            style={styles.evaluationImage as ImageStyle}
+            resizeMode="contain"
+          />
+        </View>
+      </Pressable>
+
+      <View style={styles.sectionDividerLine} />
+
       {/* IV Drips — from API */}
       <Text style={styles.sectionTitle}>IV Drips</Text>
       {ivDripsLoading ? (
@@ -471,28 +609,77 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
           </Pressable>
         </View>
       ) : (
-        ivDripServices.map(item => (
-          <MedicalServiceCard
-            key={item.id}
-            item={item}
-            onKnowMore={() =>
-              navigation.navigate('ServiceDetail', {
-                detail: {
-                  id: item.id,
-                  title: item.title,
-                  subtitle: item.subtitle,
-                  fullDescription: item.fullDescription,
-                  bullets: item.bullets,
-                  image: item.image,
-                  price: item.price,
-                  sessionInfo: item.sessionInfo,
-                  tagline: item.tagline,
-                  sections: item.sections,
-                },
-              })
-            }
-          />
-        ))
+        <View>
+          <Text style={styles.bifurcationTitle}>Subscription Based IV Drips</Text>
+          <View style={styles.ivDripsContainer}>
+            {(() => {
+              const items = ivDripServices.filter(item => item.serviceType === 'subscription');
+              return (
+                <>
+                  {items.map(item => (
+                    <MedicalServiceCard
+                      key={item.id}
+                      item={item}
+                      onKnowMore={() =>
+                        navigation.navigate('ServiceDetail', {
+                          detail: {
+                            id: item.id,
+                            title: item.title,
+                            subtitle: item.subtitle,
+                            fullDescription: item.fullDescription,
+                            bullets: item.bullets,
+                            image: item.image,
+                            price: item.price,
+                            sessionInfo: item.sessionInfo,
+                            tagline: item.tagline,
+                            sections: item.sections,
+                            serviceType: item.serviceType,
+                          },
+                        })
+                      }
+                    />
+                  ))}
+                  {items.length % 2 !== 0 && renderComingSoonCard('subs')}
+                </>
+              );
+            })()}
+          </View>
+          
+          <Text style={styles.bifurcationTitle}>Individual IV Drips</Text>
+          <View style={styles.ivDripsContainer}>
+            {(() => {
+              const items = ivDripServices.filter(item => item.serviceType !== 'subscription');
+              return (
+                <>
+                  {items.map(item => (
+                    <MedicalServiceCard
+                      key={item.id}
+                      item={item}
+                      onKnowMore={() =>
+                        navigation.navigate('ServiceDetail', {
+                          detail: {
+                            id: item.id,
+                            title: item.title,
+                            subtitle: item.subtitle,
+                            fullDescription: item.fullDescription,
+                            bullets: item.bullets,
+                            image: item.image,
+                            price: item.price,
+                            sessionInfo: item.sessionInfo,
+                            tagline: item.tagline,
+                            sections: item.sections,
+                            serviceType: item.serviceType,
+                          },
+                        })
+                      }
+                    />
+                  ))}
+                  {items.length % 2 !== 0 && renderComingSoonCard('indiv')}
+                </>
+              );
+            })()}
+          </View>
+        </View>
       )}
 
       <View style={styles.sectionDividerLine} />
@@ -524,6 +711,7 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
           )}
         />
       </View>
+      <Text style={styles.appointmentContactText}>To Book Appointment Contact +91 9967526793</Text>
       <Text style={styles.servicesOutro}>We turn complex data into a clear direction and infuse longevity.</Text>
 
       <View style={styles.sectionDividerLine} />
@@ -597,6 +785,8 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
       <Pressable onPress={handleBookConsultation} style={styles.bookConsultButton}>
         <Text style={styles.bookConsultText}>Book free consultation</Text>
       </Pressable>
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -609,10 +799,110 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundNavy,
   },
+  evaluationBanner: {
+    width: '100%',
+    flexDirection: 'row',
+    borderRadius: 14,
+    overflow: 'hidden',
+    marginBottom: spacing.lg,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  evaluationLeft: {
+    flex: 1,
+    padding: spacing.md,
+    justifyContent: 'center',
+  },
+  evaluationRight: {
+    width: 100, // Increased to show more of the image
+    height: 140,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  evaluationImage: {
+    width: '100%',
+    height: '100%',
+  },
+  evaluationTitle: {
+    fontFamily: fonts.primary,
+    fontSize: 14,
+    fontWeight: fontWeights.semibold as any,
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
+  },
+  evaluationSubtitle: {
+    fontFamily: fonts.primary,
+    fontSize: 11,
+    fontWeight: fontWeights.semibold as any,
+    color: colors.accentAqua,
+    marginBottom: spacing.sm,
+  },
+  evaluationTagline: {
+    fontFamily: fonts.primary,
+    fontSize: 10,
+    color: colors.textPrimary,
+    opacity: 0.7,
+    lineHeight: 14,
+    marginBottom: spacing.md,
+  },
+  evaluationKnowMore: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(77, 214, 255, 0.1)',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(77, 214, 255, 0.4)',
+  },
+  evaluationKnowMoreText: {
+    fontFamily: fonts.primary,
+    fontSize: 10,
+    fontWeight: fontWeights.bold as any,
+    color: colors.accentCyan,
+  },
+  ivDripsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  comingSoonCard: {
+    width: '48%',
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderStyle: 'dashed',
+    marginBottom: spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.md,
+    height: 180,
+  },
+  comingSoonIcon: {
+    fontSize: 24,
+    marginBottom: spacing.sm,
+    opacity: 0.8,
+  },
+  comingSoonTitle: {
+    fontFamily: fonts.primary,
+    fontSize: 12,
+    fontWeight: fontWeights.medium as any,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    opacity: 0.8,
+    marginBottom: 4,
+  },
+  comingSoonDesc: {
+    fontFamily: fonts.primary,
+    fontSize: 10,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    opacity: 0.5,
+  },
   scrollContent: {
     paddingHorizontal: spacing.xl + spacing.sm,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.section + spacing.xxl,
+    paddingBottom: spacing.section + spacing.xxl + 90,
   },
   topBar: {
     flexDirection: 'row',
@@ -800,6 +1090,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
+  bifurcationTitle: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.small,
+    fontWeight: fontWeights.medium as any,
+    color: colors.textPrimary,
+    opacity: 0.85,
+    marginBottom: spacing.md,
+  },
   carouselWrap: {
     height: 200,
   },
@@ -919,13 +1217,21 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: spacing.lg,
   },
+  appointmentContactText: {
+    fontFamily: fonts.primary,
+    fontSize: 12,
+    fontWeight: fontWeights.semibold as any,
+    color: colors.accentAqua,
+    textAlign: 'center',
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
   servicesOutro: {
     fontFamily: fonts.primary,
     fontSize: 12,
     color: colors.textPrimary,
     textAlign: 'center',
     opacity: 0.6,
-    marginTop: spacing.lg,
     marginBottom: spacing.section,
   },
   centreTitle: {

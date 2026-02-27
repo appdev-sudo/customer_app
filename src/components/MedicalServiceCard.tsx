@@ -24,11 +24,11 @@ export const MedicalServiceCard: React.FC<CardProps> = ({item, onKnowMore}) => {
         <Text style={styles.title} numberOfLines={2}>
           {item.title}
         </Text>
-        {item.subtitle ? (
+        {/* {item.subtitle ? (
           <Text style={styles.subtitle} numberOfLines={1}>
             {item.subtitle}
           </Text>
-        ) : null}
+        ) : null} */}
         {/* {item.price ? (
           <Text style={styles.price}>{item.price}</Text>
         ) : null} */}
@@ -47,7 +47,7 @@ export const MedicalServiceCard: React.FC<CardProps> = ({item, onKnowMore}) => {
 
 const styles = StyleSheet.create({
   card: {
-    width: '100%',
+    width: '48%',
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: 14,
     borderWidth: 1,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   imageWrap: {
     width: '100%',
-    height: 100,
+    height: 80,
     backgroundColor: 'rgba(0,0,0,0.2)',
   },
   image: {
@@ -65,11 +65,11 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   body: {
-    padding: spacing.md,
+    padding: spacing.sm,
   },
   title: {
     fontFamily: fonts.primary,
-    fontSize: fontSizes.body,
+    fontSize: 12,
     fontWeight: fontWeights.semibold as any,
     color: colors.accentAqua,
     marginBottom: spacing.xs,
@@ -91,24 +91,25 @@ const styles = StyleSheet.create({
   },
   shortDesc: {
     fontFamily: fonts.primary,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: fontWeights.regular as any,
     color: colors.textPrimary,
     opacity: 0.7,
-    lineHeight: 18,
-    marginBottom: spacing.sm,
+    lineHeight: 14,
+    marginBottom: spacing.xs,
   },
   knowMoreBtn: {
     alignSelf: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(77, 214, 255, 0.5)',
+    marginTop: spacing.xs,
   },
   knowMoreText: {
     fontFamily: fonts.primary,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: fontWeights.medium as any,
     color: colors.accentCyan,
   },

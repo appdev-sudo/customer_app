@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useRef, useEffect} from 'react';
+import {Animated, StyleSheet, View, Platform, Dimensions} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {HomeStack} from './HomeStack';
@@ -13,35 +14,87 @@ export type AppTabParamList = {
   Diagnostic: undefined;
   RedLightTherapy: undefined;
   HyperbaricOxygen: undefined;
-  // Profile: undefined; // commented for now
 };
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
+
+const TabIcon = ({
+  name,
+  color,
+  focused,
+  size,
+}: {
+  name: string;
+  color: string;
+  focused: boolean;
+  size: number;
+}) => {
+  const scale = useRef(new Animated.Value(focused ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: focused ? 1 : 0,
+      useNativeDriver: true,
+      friction: 6,
+      tension: 50,
+    }).start();
+  }, [focused, scale]);
+
+  return (
+    <View style={styles.iconContainer}>
+      <Animated.View
+        style={[
+          styles.activeBackground,
+          {
+            transform: [{scale}],
+            opacity: scale.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 0.18],
+            }),
+          },
+        ]}
+      />
+      <Animated.View
+        style={{
+          transform: [
+            {
+              translateY: scale.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -3],
+              }),
+            },
+          ],
+        }}>
+        <MaterialCommunityIcons
+          name={name}
+          color={color}
+          size={focused ? size + 4 : size}
+          style={styles.icon}
+        />
+      </Animated.View>
+    </View>
+  );
+};
 
 export const AppTabs: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: colors.backgroundNavy,
-          borderTopColor: 'rgba(255,255,255,0.08)',
-        },
+        tabBarShowLabel: true,
+        tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabBarItem,
         tabBarActiveTintColor: colors.accentAqua,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: {
-          fontFamily: fonts.primary,
-          fontSize: 11,
-          fontWeight: fontWeights.medium as any,
-        },
+        tabBarLabelStyle: styles.tabBarLabel,
       }}>
       <Tab.Screen
         name="IVDrips"
         component={HomeStack}
         options={{
           tabBarLabel: 'IV Drips',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="iv-bag" color={color} size={size} />
+          tabBarIcon: ({color, focused, size}) => (
+            <TabIcon name="iv-bag" color={color} focused={focused} size={size} />
           ),
         }}
       />
@@ -50,8 +103,8 @@ export const AppTabs: React.FC = () => {
         component={DiagnosticStack}
         options={{
           tabBarLabel: 'Diagnostic',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="pulse" color={color} size={size} />
+          tabBarIcon: ({color, focused, size}) => (
+            <TabIcon name="pulse" color={color} focused={focused} size={size} />
           ),
         }}
       />
@@ -60,8 +113,8 @@ export const AppTabs: React.FC = () => {
         component={RedLightTherapyStack}
         options={{
           tabBarLabel: 'Red Light',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="lightbulb-on" color={color} size={size} />
+          tabBarIcon: ({color, focused, size}) => (
+            <TabIcon name="lightbulb-on" color={color} focused={focused} size={size} />
           ),
         }}
       />
@@ -70,13 +123,72 @@ export const AppTabs: React.FC = () => {
         component={HyperbaricOxygenStack}
         options={{
           tabBarLabel: 'Hyperbaric O₂',
-          tabBarIcon: ({color, size}) => (
-            <MaterialCommunityIcons name="diving-helmet" color={color} size={size} />
+          tabBarIcon: ({color, focused, size}) => (
+            <TabIcon name="diving-helmet" color={color} focused={focused} size={size} />
           ),
         }}
       />
-      {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
     </Tab.Navigator>
   );
 };
 
+const {width} = Dimensions.get('window');
+const TAB_MARGIN_X = 4; // slight horizontal margin
+const TAB_MARGIN_Y = 2; // requested 1-2px gap at the bottom
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 4,
+    right: 4,
+    backgroundColor: '#0a1726', // slightly darker/slicker than backgroundNavy
+    borderRadius: 24,
+    height: 72,
+    elevation: 20,
+    shadowColor: colors.accentAqua,
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    borderTopWidth: 0,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 0, // ensure content isn't cut off by safe area if any
+    flexDirection: 'row',
+  },
+  tabBarItem: {
+    height: 72,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 0,
+  },
+  tabBarLabel: {
+    fontFamily: fonts.primary,
+    fontSize: 10,
+    fontWeight: fontWeights.semibold as any,
+    marginTop: 4,
+    marginBottom: Platform.OS === 'ios' ? -10 : 8,
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 40,
+    width: 40,
+  },
+  activeBackground: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.accentAqua,
+    shadowColor: colors.accentAqua,
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+  },
+  icon: {
+    zIndex: 1,
+  },
+});

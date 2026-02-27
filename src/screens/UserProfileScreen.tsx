@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.xl,
     paddingTop: spacing.xxl,
-    paddingBottom: spacing.xxl * 2,
+    paddingBottom: spacing.xxl * 2 + 90,
   },
   header: {
     marginBottom: spacing.xl,

@@ -17,6 +17,7 @@ export type ApiMedicalService = {
   bullets?: string[];
   sections?: DetailSection[];
   imageUrl?: string;
+  serviceType?: 'subscription' | 'individual';
   order?: number;
 };
 
@@ -33,6 +34,7 @@ function mapApiServiceToItem(api: ApiMedicalService): MedicalServiceItem {
     bullets: api.bullets,
     sections: api.sections,
     image: getImageSource(api.imageUrl),
+    serviceType: api.serviceType,
   };
 }
 
@@ -43,6 +45,7 @@ async function fetchApi<T>(
   const { token, ...init } = options ?? {};
   const headers: HeadersInit_ = {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
     ...(init.headers as Record<string, string>),
   };
   if (token) {

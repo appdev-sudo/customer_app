@@ -87,15 +87,17 @@ export const DiagnosticScreen: React.FC<Props> = ({navigation}) => {
           </Pressable>
         </View>
       ) : (
-        services.map(item => (
-          <MedicalServiceCard
-            key={item.id}
-            item={item}
-            onKnowMore={() =>
-              navigation.navigate('ServiceDetail', {detail: toDetail(item)})
-            }
-          />
-        ))
+        <View style={styles.servicesContainer}>
+          {services.map(item => (
+            <MedicalServiceCard
+              key={item.id}
+              item={item}
+              onKnowMore={() =>
+                navigation.navigate('ServiceDetail', {detail: toDetail(item)})
+              }
+            />
+          ))}
+        </View>
       )}
     </ScrollView>
   );
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxl + 90,
   },
   header: {
     flexDirection: 'row',
@@ -178,5 +180,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: fontWeights.medium as any,
     color: colors.accentAqua,
+  },
+  servicesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
 });

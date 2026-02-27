@@ -20,6 +20,7 @@ export type ServiceDetailParam = {
   tagline?: string;
   /** Structured sections e.g. A. Pre-Therapy, B. IV Sessions, C. Post-Therapy */
   sections?: DetailSection[];
+  serviceType?: 'subscription' | 'individual';
 };
 
 export type MedicalServiceItem = {
@@ -34,4 +35,5 @@ export type MedicalServiceItem = {
   sessionInfo?: string;
   tagline?: string;
   sections?: DetailSection[];
+  serviceType?: 'subscription' | 'individual';
 };

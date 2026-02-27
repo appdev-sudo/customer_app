@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   listContent: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxl + 90,
   },
   row: {
     justifyContent: 'space-between',

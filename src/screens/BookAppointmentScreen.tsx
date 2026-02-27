@@ -31,7 +31,7 @@ const generateDates = () => {
 };
 
 const TIME_SLOTS = [
-  '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', 
+  '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', 
   '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
 ];
 
@@ -175,7 +175,7 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.backgroundNavy },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 + 90 },
   headerTitle: {
     fontFamily: fonts.primary,
     fontSize: fontSizes.h2,

@@ -21,12 +21,19 @@ export const createBooking = async (token: string, data: CreateBookingData) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
     });
 
-    const result = await response.json();
+    const text = await response.text();
+    let result;
+    try {
+        result = JSON.parse(text);
+    } catch {
+        throw new Error(`Server error: ${text.slice(0, 50)}...`);
+    }
 
     if (!response.ok) {
         throw new Error(result.error || 'Failed to create booking');

@@ -6,11 +6,18 @@ export const sendOTP = async (phoneNumber: string): Promise<OTPResponse> => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({ phoneNumber }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch {
+        throw new Error(`Server error: ${text.slice(0, 50)}...`);
+    }
 
     if (!response.ok) {
         throw new Error(data.error || 'Failed to send OTP');
@@ -29,12 +36,19 @@ export const verifyOTP = async (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true',
             },
             body: JSON.stringify({ phoneNumber, otp }),
         },
     );
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch {
+        throw new Error(`Server error: ${text.slice(0, 50)}...`);
+    }
 
     if (!response.ok) {
         throw new Error(data.error || 'Failed to verify OTP');
@@ -50,12 +64,19 @@ export const resendOTP = async (phoneNumber: string): Promise<OTPResponse> => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true',
             },
             body: JSON.stringify({ phoneNumber }),
         },
     );
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch (e) {
+        throw new Error(`Server error: ${text.slice(0, 50)}...`);
+    }
 
     if (!response.ok) {
         throw new Error(data.error || 'Failed to resend OTP');
