@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
 export interface CreateBookingData {
     serviceId: string;
@@ -14,10 +14,11 @@ export interface CreateBookingData {
         formattedAddress: string;
     };
     notes?: string;
+    paymentId?: string;
 }
 
 export const createBooking = async (token: string, data: CreateBookingData) => {
-    const response = await fetch(`${API_BASE_URL}/bookings`, {
+    const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.bookings}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

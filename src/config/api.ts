@@ -5,7 +5,7 @@
 const getDefaultBaseUrl = () => {
   if (__DEV__) {
     // Using ngrok tunnel to reach backend from mobile device
-    return 'https://f2f2-2409-40c0-58-9a35-fcad-b96b-41e5-de38.ngrok-free.app';
+    return 'https://2ffa-2409-40c0-24-4370-58-126b-8132-3650.ngrok-free.app';
   }
   return 'https://your-api-domain.com'; // replace with production API URL
 };
@@ -28,4 +28,7 @@ export const API_ENDPOINTS = {
   bookings: '/api/bookings',
   bookingsMe: '/api/bookings/me',
   bookingById: (id: string) => `/api/bookings/${id}`,
+  // Payments
+  paymentCreateOrder: '/api/payments/create-order',
+  paymentVerify: '/api/payments/verify',
 } as const;

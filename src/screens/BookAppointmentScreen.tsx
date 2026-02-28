@@ -15,6 +15,8 @@ import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
 import {useAuth} from '../utils/authContext';
 import {createBooking} from '../api/bookingApi';
+import {createRazorpayOrder, verifyRazorpayPayment} from '../api/paymentApi';
+import RazorpayCheckout from 'react-native-razorpay';
 import {HomeStackParamList} from '../navigation/HomeStack';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'BookAppointment'>;
@@ -68,19 +70,59 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
     try {
         if (!token) throw new Error('Not authenticated');
 
-        await createBooking(token, {
-            serviceId,
-            preferredDate: selectedDate.toISOString(),
-            preferredTimeSlot: selectedTime,
-            address: user.location.address, // Use saved address
+        // 1. Create Razorpay order (Assumed ₹1000 for standard session for now to test)
+        const orderRes = await createRazorpayOrder(token, 1000); 
+
+        // 2. Setup options
+        const options = {
+          description: serviceTitle,
+          currency: orderRes.order.currency,
+          key: orderRes.keyId,
+          amount: orderRes.order.amount,
+          name: 'VytalYou',
+          order_id: orderRes.order.id,
+          prefill: {
+            contact: user?.phone || '',
+            name: user?.name || 'User',
+          },
+          theme: {color: colors.accentAqua}
+        };
+
+        // 3. Open Razorpay Checkout
+        RazorpayCheckout.open(options).then(async (data: any) => {
+           try {
+              // 4. Verify Payment
+              await verifyRazorpayPayment(token, {
+                razorpay_order_id: data.razorpay_order_id,
+                razorpay_payment_id: data.razorpay_payment_id,
+                razorpay_signature: data.razorpay_signature,
+              });
+
+              // 5. Create booking after successful payment
+              await createBooking(token, {
+                  serviceId,
+                  preferredDate: selectedDate.toISOString(),
+                  preferredTimeSlot: selectedTime,
+                  address: user!.location!.address,
+                  paymentId: data.razorpay_payment_id,
+              });
+              
+              Alert.alert('Booking Confirmed', 'Payment Successful & Appointment Request Sent!', [
+                  { text: 'OK', onPress: () => navigation.navigate('HomeMain') }
+              ]);
+           } catch(err: any) {
+              Alert.alert('Booking Finalization Failed', err.message || 'Payment verification failed.');
+           } finally {
+              setLoading(false);
+           }
+        }).catch((error: any) => {
+           // User cancelled or payment failed
+           Alert.alert('Payment Cancelled/Failed', error?.description || 'Payment did not go through.');
+           setLoading(false);
         });
-        
-        Alert.alert('Success', 'Appointment Request Sent! We will contact you shortly.', [
-            { text: 'OK', onPress: () => navigation.navigate('HomeMain') }
-        ]);
+
     } catch (error: any) {
-        Alert.alert('Booking Failed', error.message || 'Something went wrong.');
-    } finally {
+        Alert.alert('Error', error.message || 'Something went wrong.');
         setLoading(false);
     }
   };
