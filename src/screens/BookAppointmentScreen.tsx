@@ -15,8 +15,16 @@ import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
 import {useAuth} from '../utils/authContext';
 import {createBooking} from '../api/bookingApi';
-import {createRazorpayOrder, verifyRazorpayPayment} from '../api/paymentApi';
-import RazorpayCheckout from 'react-native-razorpay';
+import {createCashfreeOrder, verifyCashfreePayment} from '../api/paymentApi';
+import { CFPaymentGatewayService } from 'react-native-cashfree-pg-sdk';
+import { 
+    CFSession, 
+    CFEnvironment, 
+    CFThemeBuilder, 
+    CFDropCheckoutPayment, 
+    CFPaymentComponentBuilder, 
+    CFPaymentModes 
+} from 'cashfree-pg-api-contract';
 import {HomeStackParamList} from '../navigation/HomeStack';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'BookAppointment'>;
@@ -45,7 +53,47 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
-  // Dates
+  useEffect(() => {
+    // Setup Cashfree callback
+    CFPaymentGatewayService.setCallback({
+        onVerify: async (orderId: string) => {
+            if (!token) return;
+            setLoading(true);
+            try {
+                // Verify with backend
+                await verifyCashfreePayment(token, orderId);
+
+                // Create booking
+                await createBooking(token, {
+                    serviceId,
+                    preferredDate: selectedDate?.toISOString() || new Date().toISOString(),
+                    preferredTimeSlot: selectedTime || '',
+                    address: user!.location!.address,
+                    paymentId: orderId, // Use Order ID as proof for now
+                });
+                
+                Alert.alert('Booking Confirmed', 'Payment Successful & Appointment Request Sent!', [
+                    { text: 'OK', onPress: () => navigation.navigate('HomeMain') }
+                ]);
+            } catch (err: any) {
+                console.error('Verify error:', err);
+                Alert.alert('Payment Not Verified', 'If your money was deducted, it will be verified soon or refunded.');
+            } finally {
+                setLoading(false);
+            }
+        },
+        onError: (error: any, orderId: string) => {
+            setLoading(false);
+            console.error('Payment Error:', error, orderId);
+            Alert.alert('Payment Failed', error?.getMessage?.() || error?.message || 'Payment did not go through.');
+        }
+    });
+
+    return () => {
+        CFPaymentGatewayService.removeCallback();
+    };
+  }, [selectedDate, selectedTime, user, token, serviceId]);
+
   const dates = generateDates();
 
   const handleBook = async () => {
@@ -70,62 +118,55 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
     try {
         if (!token) throw new Error('Not authenticated');
 
-        // 1. Create Razorpay order (Assumed ₹1000 for standard session for now to test)
-        const orderRes = await createRazorpayOrder(token, 1000); 
-
-        // 2. Setup options
-        const options = {
-          description: serviceTitle,
-          currency: orderRes.order.currency,
-          key: orderRes.keyId,
-          amount: orderRes.order.amount,
-          name: 'VytalYou',
-          order_id: orderRes.order.id,
-          prefill: {
-            contact: user?.phone || '',
-            name: user?.name || 'User',
-          },
-          theme: {color: colors.accentAqua}
-        };
-
-        // 3. Open Razorpay Checkout
-        RazorpayCheckout.open(options).then(async (data: any) => {
-           try {
-              // 4. Verify Payment
-              await verifyRazorpayPayment(token, {
-                razorpay_order_id: data.razorpay_order_id,
-                razorpay_payment_id: data.razorpay_payment_id,
-                razorpay_signature: data.razorpay_signature,
-              });
-
-              // 5. Create booking after successful payment
-              await createBooking(token, {
-                  serviceId,
-                  preferredDate: selectedDate.toISOString(),
-                  preferredTimeSlot: selectedTime,
-                  address: user!.location!.address,
-                  paymentId: data.razorpay_payment_id,
-              });
-              
-              Alert.alert('Booking Confirmed', 'Payment Successful & Appointment Request Sent!', [
-                  { text: 'OK', onPress: () => navigation.navigate('HomeMain') }
-              ]);
-           } catch(err: any) {
-              Alert.alert('Booking Finalization Failed', err.message || 'Payment verification failed.');
-           } finally {
-              setLoading(false);
-           }
-        }).catch((error: any) => {
-           // User cancelled or payment failed
-           Alert.alert('Payment Cancelled/Failed', error?.description || 'Payment did not go through.');
-           setLoading(false);
+        // 1. Create Cashfree order (backend calculates amount using serviceId)
+        const orderData = await createCashfreeOrder(token, null, {
+            customerId: user?.id,
+            customerName: user?.name,
+            customerPhone: user?.phone,
+            serviceId: serviceId,
         });
+
+        const { order, environment } = orderData;
+        const sessionId = order.payment_session_id;
+
+        // 2. Setup Cashfree Session
+        const cfSession = new CFSession(
+            sessionId,
+            order.order_id,
+            environment === 'PRODUCTION' ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX
+        );
+
+        // 3. Components (e.g., enable UPI and Cards)
+        const paymentComponent = new CFPaymentComponentBuilder()
+            .add(CFPaymentModes.UPI)
+            .add(CFPaymentModes.CARD)
+            .add(CFPaymentModes.NB)
+            .build();
+
+        // 4. Theme
+        const theme = new CFThemeBuilder()
+            .setNavigationBarBackgroundColor(colors.backgroundNavy)
+            .setNavigationBarTextColor(colors.textPrimary)
+            .setButtonBackgroundColor(colors.accentAqua)
+            .setButtonTextColor(colors.backgroundNavy)
+            .build();
+
+        // 5. Build payment request
+        const dropCheckoutPayment = new CFDropCheckoutPayment(
+            cfSession,
+            paymentComponent,
+            theme
+        );
+
+        // 6. Launch Payment
+        CFPaymentGatewayService.doPayment(dropCheckoutPayment);
 
     } catch (error: any) {
         Alert.alert('Error', error.message || 'Something went wrong.');
         setLoading(false);
     }
   };
+
 
   const formatDate = (date: Date) => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -318,3 +359,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+

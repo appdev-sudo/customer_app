@@ -1,13 +1,17 @@
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 
-export const createRazorpayOrder = async (token: string, amount: number) => {
+export const createCashfreeOrder = async (
+    token: string, 
+    amount: number | null, 
+    customerDetails: { customerId?: string; customerPhone?: string; customerName?: string; customerEmail?: string; serviceId?: string }
+) => {
     const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.paymentCreateOrder}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({ amount, ...customerDetails }),
     });
 
     if (!response.ok) {
@@ -18,14 +22,14 @@ export const createRazorpayOrder = async (token: string, amount: number) => {
     return response.json();
 };
 
-export const verifyRazorpayPayment = async (token: string, paymentData: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+export const verifyCashfreePayment = async (token: string, orderId: string) => {
     const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.paymentVerify}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(paymentData),
+        body: JSON.stringify({ order_id: orderId }),
     });
 
     if (!response.ok) {
@@ -35,3 +39,4 @@ export const verifyRazorpayPayment = async (token: string, paymentData: { razorp
 
     return response.json();
 };
+
