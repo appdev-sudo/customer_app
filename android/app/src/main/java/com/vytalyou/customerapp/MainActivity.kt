@@ -1,4 +1,4 @@
-package com.customer_app
+package com.vytalyou.customerapp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

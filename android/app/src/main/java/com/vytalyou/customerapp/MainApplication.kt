@@ -1,4 +1,4 @@
-package com.customer_app
+package com.vytalyou.customerapp
 
 import android.app.Application
 import com.facebook.react.PackageList
