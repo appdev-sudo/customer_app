@@ -86,15 +86,10 @@ export const OnboardingScreen: React.FC<Props> = ({onFinished}) => {
   }, [currentIndex, onFinished]);
 
   const renderItem = ({item}: ListRenderItemInfo<Slide>) => (
-    <View style={{width}}>
+    <View style={{width, flex: 1}}>
       <OnboardingSlide
         title={item.title}
         description={item.description}
-        image={
-          item.key === 'hero'
-            ? require('../assets/images/logo-03.png')
-            : require('../assets/images/Website_banner_2.jpg')
-        }
       />
     </View>
   );

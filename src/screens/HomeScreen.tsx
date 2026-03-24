@@ -126,7 +126,7 @@ const COMPLETE_BODY_EVALUATION: MedicalServiceItem = {
   subtitle: 'With Predictive Longevity Report',
   tagline: 'Know your health today. Protect your years ahead.',
   fullDescription: 'At Vytalyou, health screening goes beyond routine testing. Our Complete Body Evaluation combines advanced diagnostics, metabolic risk detection, and preventive imaging to reveal early warning signs of future disease—before symptoms appear. This is not just a check-up. It is a clarity-driven roadmap to longer, healthier living. It will generate your ultraprecision AI guided Composite Longevity Score with estimated biological age drift.\n\nThe Vytalyou Difference:\n• Predictive—not just preventive.\n• Focused on biological age versus chronological age.\n• Integrated metabolic, cardiac, and imaging insights.\n• Delivered with a clear, doctor-interpreted Longevity Report.\n• 10-year morbidity and mortality prediction graph\n• Physician\'s recommendations to preserve and improve health\n\nLongevity is not about adding years after illness—it is about protecting health before decline begins.\n\nVytalyou - Precision Health. Predictive Longevity.',
-  image: require('../assets/images/Website_banner_2.jpg'),
+  image: require('../assets/images/complete_body_eval.png'),
   sections: [
     {
       title: '1. Comprehensive Blood Evaluation',
@@ -576,7 +576,7 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
         </View>
         <View style={styles.evaluationRight}>
           <Image
-            source={require('../assets/images/image.png')} // Same fallback image to keep consistency
+            source={require('../assets/images/complete_body_eval.png')} // Same image
             style={styles.evaluationImage as ImageStyle}
             resizeMode="contain"
           />

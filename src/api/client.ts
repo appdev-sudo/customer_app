@@ -33,7 +33,7 @@ function mapApiServiceToItem(api: ApiMedicalService): MedicalServiceItem {
     tagline: api.tagline,
     bullets: api.bullets,
     sections: api.sections,
-    image: getImageSource(api.imageUrl),
+    image: getImageSource(api.serviceId, api.imageUrl),
     serviceType: api.serviceType,
   };
 }

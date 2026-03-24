@@ -52,10 +52,10 @@ export const SplashScreen: React.FC<Props> = ({isAppReady, onFinish}) => {
         style={[styles.logo, {opacity: fadeAnim, transform: [{translateY: translateAnim}]}]}
         resizeMode="contain"
       />
-      <Animated.View style={[styles.taglineContainer, {opacity: fadeAnim, transform: [{translateY: translateAnim}]}]}>
+      {/* <Animated.View style={[styles.taglineContainer, {opacity: fadeAnim, transform: [{translateY: translateAnim}]}]}>
         <Text style={styles.tagline}>Decode Health. Measure Wellness.</Text>
         <Text style={styles.tagline}>Redesign Your Biology.</Text>
-      </Animated.View>
+      </Animated.View> */}
     </View>
   );
 };

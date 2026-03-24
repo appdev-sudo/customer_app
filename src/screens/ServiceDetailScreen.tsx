@@ -55,11 +55,11 @@ export const ServiceDetailScreen: React.FC<Props> = ({route, navigation}) => {
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
       {/* Hero */}
       {detail.image ? (
-        <View style={styles.hero}>
+        <View style={[styles.hero, {backgroundColor: 'rgba(255,255,255,0.02)'}]}>
           <Image
             source={detail.image}
             style={styles.heroImage}
-            resizeMode="cover"
+            resizeMode="contain"
           />
           <View style={styles.heroOverlay} />
           <View style={styles.heroText}>

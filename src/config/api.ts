@@ -5,9 +5,9 @@
 const getDefaultBaseUrl = () => {
   if (__DEV__) {
     // Using ngrok tunnel to reach backend from mobile device
-    return 'https://84f4-2409-40c0-1053-a3bf-5eb-cb63-27e8-6f2c.ngrok-free.app';
+    return 'https://api.vytalyou.com';
   }
-  return 'https://84f4-2409-40c0-1053-a3bf-5eb-cb63-27e8-6f2c.ngrok-free.app'; // replace with production API URL
+  return 'https://api.vytalyou.com'; // replace with production API URL
 };
 
 export const API_BASE_URL = getDefaultBaseUrl();
