@@ -48,7 +48,7 @@ export const SplashScreen: React.FC<Props> = ({isAppReady, onFinish}) => {
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={require('../assets/images/logo-03.png')}
+        source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/logo-03.png' }}
         style={[styles.logo, {opacity: fadeAnim, transform: [{translateY: translateAnim}]}]}
         resizeMode="contain"
       />

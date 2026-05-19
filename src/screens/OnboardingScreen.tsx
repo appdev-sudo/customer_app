@@ -97,7 +97,7 @@ export const OnboardingScreen: React.FC<Props> = ({onFinished}) => {
   return (
     <View style={styles.root}>
       <Image
-        source={require('../assets/images/Website_banner_2.jpg')}
+        source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' }}
         style={styles.backgroundImage}
         resizeMode="cover"
         blurRadius={6}
@@ -105,7 +105,7 @@ export const OnboardingScreen: React.FC<Props> = ({onFinished}) => {
       <View style={styles.overlay} />
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo-03.png')}
+          source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/logo-03.png' }}
           style={styles.logo}
           resizeMode="contain"
         />

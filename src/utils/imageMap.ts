@@ -1,7 +1,7 @@
 import type { ImageSourcePropType } from 'react-native';
 
 const ASSETS: Record<string, ImageSourcePropType> = {
-  banner: require('../assets/images/Website_banner_2.jpg'),
+  banner: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' },
   'saline-drip': require('../assets/icons/saline-drip.png'),
   endocrine: require('../assets/icons/endocrine.png'),
   'ecg-machine': require('../assets/icons/ecg-machine.png'),
@@ -9,46 +9,53 @@ const ASSETS: Record<string, ImageSourcePropType> = {
   dna: require('../assets/icons/dna.png'),
   
   // Diagnostics
-  pathology: require('../assets/images/diag_pathology.png'),
-  radiology: require('../assets/images/diag_radiology.png'),
-  cardiac: require('../assets/images/diag_cardiac.png'),
-  'body-composition': require('../assets/images/diag_bodycomp.png'),
-  genetics: require('../assets/images/diag_genetics.png'),
-  'cancer-screening': require('../assets/images/diag_cancer.png'),
+  pathology: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_pathology.png' },
+  radiology: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_radiology.png' },
+  cardiac: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_cardiac.png' },
+  'body-composition': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_bodycomp.png' },
+  genetics: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_genetics.png' },
+  'cancer-screening': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_cancer.png' },
   
   // IV Drips
-  'complete-recode': require('../assets/images/iv_complete_recode.png'),
-  'renewal-series': require('../assets/images/iv_renewal_series.png'),
-  'starter-evolution': require('../assets/images/iv_starter_evolution.png'),
-  'vytal-power-plus': require('../assets/images/iv_vytal_power.png'),
-  'vytal-shred-plus': require('../assets/images/iv_vytal_shred.png'),
-  'vytal-liver-detox': require('../assets/images/iv_vytal_liver.png'),
-  'vytal-iv-essentials': require('../assets/images/iv_vytal_essentials.png'),
-  'vytal-cycle-support': require('../assets/images/iv_vytal_cycle.png'),
-  'vytal-revive': require('../assets/images/iv_vytal_revive.png'),
-  'vytal-immune-plus': require('../assets/images/iv_vytal_immune.png'),
-  'vytal-detox': require('../assets/images/iv_vytal_detox.png'),
-  'vytal-femme-strong': require('../assets/images/iv_vytal_femme.png'),
-  'femme-strong': require('../assets/images/iv_vytal_femme.png'),
-  'vytal-endure-plus': require('../assets/images/iv_vytal_endurance.png'),
-  'endurance': require('../assets/images/iv_vytal_endurance.png'),
-  'vytal-alpha-power': require('../assets/images/iv_vytal_alpha.png'),
-  'alpha-athlete': require('../assets/images/iv_vytal_alpha.png'),
-  'vytal-gut-cleanse': require('../assets/images/iv_vytal_gut.png'),
-  'alpha-executive': require('../assets/images/iv_vytal_executive.png'),
-  'vytal-hairboost': require('../assets/images/iv_vytal_hairboost.png'),
-  'red-light-therapy': require('../assets/images/red_light_therapy.png'),
-  'hyperbaric-oxygen': require('../assets/images/hyperbaric_oxygen.png'),
+  'complete-recode': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_complete_recode.png' },
+  'renewal-series': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_renewal_series.png' },
+  'starter-evolution': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_starter_evolution.png' },
+  'vytal-power-plus': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_power.png' },
+  'vytal-shred-plus': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_shred.png' },
+  'vytal-liver-detox': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_liver.png' },
+  'vytal-iv-essentials': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_essentials.png' },
+  'vytal-cycle-support': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_cycle.png' },
+  'vytal-revive': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_revive.png' },
+  'vytal-immune-plus': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_immune.png' },
+  'vytal-detox': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_detox.png' },
+  'vytal-femme-strong': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_femme.png' },
+  'femme-strong': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_femme.png' },
+  'vytal-endure-plus': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_endurance.png' },
+  'endurance': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_endurance.png' },
+  'vytal-alpha-power': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_alpha.png' },
+  'alpha-athlete': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_alpha.png' },
+  'vytal-gut-cleanse': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_gut.png' },
+  'alpha-executive': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_executive.png' },
+  'vytal-hairboost': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_vytal_hairboost.png' },
+  'red-light-therapy': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/red_light_therapy.png' },
+  'hyperbaric-oxygen': { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/hyperbaric_oxygen.png' },
 };
 
 const DEFAULT_IMAGE = require('../assets/icons/saline-drip.png');
 
 /**
- * Map API ID or imageUrl string to local require() image for display.
+ * Map API ID or imageUrl string to local require() image for display, or an S3 network link.
  */
 export function getImageSource(id: string, imageUrl?: string | null): ImageSourcePropType {
+  // Directly support S3 bucket URLs from the database
+  if (imageUrl && imageUrl.startsWith('http')) {
+    return { uri: imageUrl };
+  }
+
+  // Fallbacks to local mappings
   if (id && ASSETS[id]) return ASSETS[id];
   if (imageUrl && ASSETS[imageUrl]) return ASSETS[imageUrl];
+  
   return DEFAULT_IMAGE;
 }
 

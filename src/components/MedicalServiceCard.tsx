@@ -1,5 +1,6 @@
 import React from 'react';
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import {NetworkImage} from './NetworkImage';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
@@ -14,7 +15,7 @@ export const MedicalServiceCard: React.FC<CardProps> = ({item, onKnowMore}) => {
   return (
     <View style={styles.card}>
       <View style={styles.imageWrap}>
-        <Image
+        <NetworkImage
           source={item.image}
           style={styles.image}
           resizeMode="cover"

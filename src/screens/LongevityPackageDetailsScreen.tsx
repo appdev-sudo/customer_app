@@ -24,7 +24,7 @@ export const LongevityPackageDetailsScreen: React.FC<Props> = ({route, navigatio
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
       <View style={styles.hero}>
         <Image
-          source={require('../assets/images/Website_banner_2.jpg')}
+          source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' }}
           style={styles.heroImage}
           resizeMode="cover"
         />

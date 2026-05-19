@@ -15,12 +15,12 @@ export const ServicesScreen: React.FC = () => {
   const services: Service[] = useMemo(
     () => [
       // Source: `vytalyou_website/index.php` Our Medical Services cards (L239-L316)
-      {id: 'radiology', title: 'Radiology', description: 'AI-assisted ultrasound, Colour Doppler, Elastography, X-ray.', icon: require('../assets/images/diag_radiology.png')},
-      {id: 'pathology', title: 'Pathology', description: 'Comprehensive laboratory testing for all vital organs.', icon: require('../assets/images/diag_pathology.png')},
-      {id: 'bca', title: 'Body Composition Analysis', description: 'Advanced technology measuring obesity, muscle mass, inflammation, and cellular age.', icon: require('../assets/images/diag_bodycomp.png')},
-      {id: 'genomics', title: 'Wellness Genomic Testing', description: 'DNA-based insights into health risks and longevity potential.', icon: require('../assets/images/diag_genetics.png')},
-      {id: 'cardiac', title: 'Cardiac Evaluation', description: 'ECG and 2D/3D ECHO for heart performance assessment.', icon: require('../assets/images/diag_cardiac.png')},
-      {id: 'iv', title: 'Personalized IV Therapy', description: 'NAD+ and VytalYou IV drips customized based on your diagnostic data.', icon: require('../assets/images/iv_drip_card.png')},
+      {id: 'radiology', title: 'Radiology', description: 'AI-assisted ultrasound, Colour Doppler, Elastography, X-ray.', icon: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_radiology.png' }},
+      {id: 'pathology', title: 'Pathology', description: 'Comprehensive laboratory testing for all vital organs.', icon: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_pathology.png' }},
+      {id: 'bca', title: 'Body Composition Analysis', description: 'Advanced technology measuring obesity, muscle mass, inflammation, and cellular age.', icon: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_bodycomp.png' }},
+      {id: 'genomics', title: 'Wellness Genomic Testing', description: 'DNA-based insights into health risks and longevity potential.', icon: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_genetics.png' }},
+      {id: 'cardiac', title: 'Cardiac Evaluation', description: 'ECG and 2D/3D ECHO for heart performance assessment.', icon: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/diag_cardiac.png' }},
+      {id: 'iv', title: 'Personalized IV Therapy', description: 'NAD+ and VytalYou IV drips customized based on your diagnostic data.', icon: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/iv_drip_card.png' }},
     ],
     [],
   );
@@ -29,7 +29,7 @@ export const ServicesScreen: React.FC = () => {
     <View style={styles.root}>
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo-03.png')}
+          source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/logo-03.png' }}
           style={styles.logo}
           resizeMode="contain"
         />

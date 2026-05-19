@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {NetworkImage} from '../components/NetworkImage';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
@@ -56,10 +57,10 @@ export const ServiceDetailScreen: React.FC<Props> = ({route, navigation}) => {
       {/* Hero */}
       {detail.image ? (
         <View style={[styles.hero, {backgroundColor: 'rgba(255,255,255,0.02)'}]}>
-          <Image
+          <NetworkImage
             source={detail.image}
             style={styles.heroImage}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View style={styles.heroOverlay} />
           <View style={styles.heroText}>

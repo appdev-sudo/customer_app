@@ -54,7 +54,7 @@ export const DiagnosticScreen: React.FC<Props> = ({navigation}) => {
       showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Image
-          source={require('../assets/images/logo-03.png')}
+          source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/logo-03.png' }}
           style={styles.logo}
           resizeMode="contain"
         />

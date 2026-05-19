@@ -23,6 +23,7 @@ import type {LongevityPackage} from '../types/longevity';
 import type {MedicalServiceItem} from '../types/serviceDetail';
 import {MedicalServiceCard} from '../components/MedicalServiceCard';
 import {ProfileIcon} from '../components/ProfileIcon';
+import {NetworkImage} from '../components/NetworkImage';
 
 const {width} = Dimensions.get('window');
 
@@ -126,7 +127,7 @@ const COMPLETE_BODY_EVALUATION: MedicalServiceItem = {
   subtitle: 'With Predictive Longevity Report',
   tagline: 'Know your health today. Protect your years ahead.',
   fullDescription: 'At Vytalyou, health screening goes beyond routine testing. Our Complete Body Evaluation combines advanced diagnostics, metabolic risk detection, and preventive imaging to reveal early warning signs of future disease—before symptoms appear. This is not just a check-up. It is a clarity-driven roadmap to longer, healthier living. It will generate your ultraprecision AI guided Composite Longevity Score with estimated biological age drift.\n\nThe Vytalyou Difference:\n• Predictive—not just preventive.\n• Focused on biological age versus chronological age.\n• Integrated metabolic, cardiac, and imaging insights.\n• Delivered with a clear, doctor-interpreted Longevity Report.\n• 10-year morbidity and mortality prediction graph\n• Physician\'s recommendations to preserve and improve health\n\nLongevity is not about adding years after illness—it is about protecting health before decline begins.\n\nVytalyou - Precision Health. Predictive Longevity.',
-  image: require('../assets/images/complete_body_eval.png'),
+  image: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/complete_body_eval.png' },
   sections: [
     {
       title: '1. Comprehensive Blood Evaluation',
@@ -171,7 +172,7 @@ const IV_DRIP_SERVICES_FALLBACK: MedicalServiceItem[] = [
     price: '₹2,49,000',
     sessionInfo: '20 IV Sessions • 6 Months',
     tagline: 'The Definitive Longevity & Cellular Reset',
-    image: require('../assets/images/Website_banner_2.jpg'),
+    image: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' },
     sections: [
       {
         title: 'A. Pre-Therapy Routine Health Check',
@@ -211,7 +212,7 @@ const IV_DRIP_SERVICES_FALLBACK: MedicalServiceItem[] = [
     price: '₹1,49,000',
     sessionInfo: '12 IV Sessions • 2 Months',
     tagline: 'Targeted Longevity Rejuvenation',
-    image: require('../assets/images/Website_banner_2.jpg'),
+    image: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' },
     sections: [
       {
         title: 'A. Pre-Therapy Routine Health Check',
@@ -251,7 +252,7 @@ const IV_DRIP_SERVICES_FALLBACK: MedicalServiceItem[] = [
     price: '₹75,000',
     sessionInfo: '4 IV Sessions • 35 Days',
     tagline: 'A Taste of Cellular Revitalization',
-    image: require('../assets/images/Website_banner_2.jpg'),
+    image: { uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' },
     sections: [
       {
         title: 'A. Pre-Therapy Routine Health Check',
@@ -417,7 +418,7 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
         </View>
         <View style={styles.longevityRight}>
           <Image
-            source={require('../assets/images/Website_banner_2.jpg')}
+            source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' }}
             style={styles.longevityImage as ImageStyle}
             resizeMode="cover"
           />
@@ -453,7 +454,7 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
         </View>
         <View style={styles.topBarRight}>
           <Image
-            source={require('../assets/images/logo-03.png')}
+            source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/logo-03.png' }}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -472,7 +473,7 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
         </View>
         <View style={styles.heroRight}>
           <Image
-            source={require('../assets/images/Website_banner_2.jpg')}
+            source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/Website_banner_2.jpg' }}
             style={styles.heroImage as ImageStyle}
             resizeMode="cover"
           />
@@ -575,8 +576,8 @@ export const HomeScreen: React.FC<Props> = ({navigation}) => {
           </View>
         </View>
         <View style={styles.evaluationRight}>
-          <Image
-            source={require('../assets/images/complete_body_eval.png')} // Same image
+          <NetworkImage
+            source={{ uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/complete_body_eval.png' }} // Same image
             style={styles.evaluationImage as ImageStyle}
             resizeMode="contain"
           />

@@ -6,6 +6,7 @@ import {HomeStack} from './HomeStack';
 import {DiagnosticStack} from './DiagnosticStack';
 import {RedLightTherapyStack} from './RedLightTherapyStack';
 import {HyperbaricOxygenStack} from './HyperbaricOxygenStack';
+import {ProfileScreen} from '../screens/ProfileScreen';
 import {colors} from '../theme/colors';
 import {fonts, fontWeights} from '../theme/typography';
 
@@ -14,6 +15,7 @@ export type AppTabParamList = {
   Diagnostic: undefined;
   RedLightTherapy: undefined;
   HyperbaricOxygen: undefined;
+  Profile: undefined;
 };
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
@@ -125,6 +127,16 @@ export const AppTabs: React.FC = () => {
           tabBarLabel: 'Hyperbaric O₂',
           tabBarIcon: ({color, focused, size}) => (
             <TabIcon name="diving-helmet" color={color} focused={focused} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({color, focused, size}) => (
+            <TabIcon name="account-circle-outline" color={color} focused={focused} size={size} />
           ),
         }}
       />
