@@ -11,11 +11,12 @@ import {
   View,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../utils/authContext';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
-import {getMyBookings} from '../api/bookingApi';
+import {getMyBookings, getMySubscriptions} from '../api/bookingApi';
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<string, {label: string; color: string; icon: string}> = {
@@ -162,10 +163,59 @@ const BookingCard: React.FC<{booking: any}> = ({booking}) => {
   );
 };
 
+// ── Subscription Card ─────────────────────────────────────────────────────────
+const SubscriptionCard: React.FC<{subscription: any}> = ({subscription}) => {
+  const [expanded, setExpanded] = useState(false);
+  const statusColor = subscription.status === 'active' ? '#3B82F6' : '#10B981';
+  
+  return (
+    <View style={styles.bookingCard}>
+      <Pressable onPress={() => setExpanded(e => !e)} style={styles.bookingCardHeader}>
+        <View style={styles.bookingCardLeft}>
+          <View style={[styles.statusBadge, {backgroundColor: statusColor + '20'}]}>
+            <MaterialCommunityIcons name={subscription.status === 'active' ? 'play-circle-outline' : 'check-decagram'} size={13} color={statusColor} />
+            <Text style={[styles.statusText, {color: statusColor}]}>{subscription.status}</Text>
+          </View>
+          <Text style={styles.bookingService} numberOfLines={1}>{subscription.serviceTitle}</Text>
+          <Text style={styles.bookingDate}>
+            Sessions: {subscription.completedSessions} / {subscription.totalSessions}
+          </Text>
+        </View>
+        <MaterialCommunityIcons
+          name={expanded ? 'chevron-up' : 'chevron-down'}
+          size={20}
+          color={colors.textSecondary}
+        />
+      </Pressable>
+      
+      {expanded && subscription.sessions && (
+        <View style={styles.bookingDetails}>
+          <View style={styles.divider} />
+          {subscription.sessions.map((session: any) => (
+            <View key={session._id} style={{marginBottom: 8, padding: 8, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 8}}>
+              <Text style={{fontFamily: fonts.primary, fontSize: 13, color: colors.accentAqua, fontWeight: 'bold'}}>{session.sessionName}</Text>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
+                <Text style={{fontFamily: fonts.primary, fontSize: 12, color: colors.textSecondary}}>
+                  {session.preferredDate ? formatDate(session.preferredDate) : 'Unscheduled'}
+                </Text>
+                <Text style={{fontFamily: fonts.primary, fontSize: 12, color: STATUS_CONFIG[session.status]?.color || colors.textSecondary}}>
+                  {STATUS_CONFIG[session.status]?.label || session.status}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
 // ── Main ProfileScreen ────────────────────────────────────────────────────────
 export const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation();
   const {user, token, isAuthenticated, logout} = useAuth();
   const [bookings, setBookings] = useState<any[]>([]);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -173,10 +223,14 @@ export const ProfileScreen: React.FC = () => {
     if (!token) {return;}
     setBookingsLoading(true);
     try {
-      const data = await getMyBookings(token);
+      const [data, subsData] = await Promise.all([
+        getMyBookings(token),
+        getMySubscriptions(token)
+      ]);
       setBookings(Array.isArray(data) ? data : []);
+      setSubscriptions(Array.isArray(subsData) ? subsData : []);
     } catch (e: any) {
-      console.error('Failed to fetch bookings:', e.message);
+      console.error('Failed to fetch data:', e.message);
     } finally {
       setBookingsLoading(false);
       setRefreshing(false);
@@ -196,14 +250,22 @@ export const ProfileScreen: React.FC = () => {
 
   if (!isAuthenticated || !user) {
     return (
-      <View style={styles.root}>
+      <View style={[styles.root, styles.unauthRoot]}>
         <Image
           source={{uri: 'https://vytalyou-public-assets.s3.eu-north-1.amazonaws.com/logo-03.png'}}
-          style={styles.logo}
+          style={styles.unauthLogo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Profile</Text>
-        <Text style={styles.subtitle}>Please login to view your profile</Text>
+        <View style={styles.unauthTextContainer}>
+          <Text style={styles.unauthTitle}>Welcome to VytalYou</Text>
+          <Text style={styles.unauthSubtitle}>Login or Sign Up to manage your bookings and view your profile</Text>
+        </View>
+        <Pressable 
+          style={styles.loginButton} 
+          onPress={() => navigation.navigate('AuthStack' as never)}
+        >
+          <Text style={styles.loginButtonText}>Login / Sign Up</Text>
+        </Pressable>
       </View>
     );
   }
@@ -260,13 +322,20 @@ export const ProfileScreen: React.FC = () => {
           {bookingsLoading && <ActivityIndicator size="small" color={colors.accentAqua} />}
         </View>
 
-        {bookings.length === 0 && !bookingsLoading ? (
+        {bookings.length === 0 && subscriptions.length === 0 && !bookingsLoading ? (
           <View style={styles.emptyBookings}>
             <MaterialCommunityIcons name="calendar-blank-outline" size={40} color={colors.textSecondary} />
             <Text style={styles.emptyText}>No bookings yet</Text>
           </View>
         ) : (
           <>
+            {/* Subscriptions */}
+            {subscriptions.length > 0 && (
+              <>
+                <Text style={styles.bookingGroupLabel}>⭐ Subscriptions</Text>
+                {subscriptions.map(s => <SubscriptionCard key={s._id} subscription={s} />)}
+              </>
+            )}
             {/* Active bookings first */}
             {activeBookings.length > 0 && (
               <>
@@ -290,6 +359,35 @@ export const ProfileScreen: React.FC = () => {
             )}
           </>
         )}
+      </View>
+
+      {/* App Info / Policies */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>App Info</Text>
+
+        <Pressable style={styles.policyRow} onPress={() => navigation.navigate('ContactUs' as never)}>
+          <View style={styles.policyRowLeft}>
+            <MaterialCommunityIcons name="headphones" size={20} color={colors.textSecondary} />
+            <Text style={styles.policyText}>Contact Us</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} />
+        </Pressable>
+
+        <Pressable style={styles.policyRow} onPress={() => navigation.navigate('TermsAndConditions' as never)}>
+          <View style={styles.policyRowLeft}>
+            <MaterialCommunityIcons name="file-document-outline" size={20} color={colors.textSecondary} />
+            <Text style={styles.policyText}>Terms & Conditions</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} />
+        </Pressable>
+
+        <Pressable style={[styles.policyRow, { borderBottomWidth: 0 }]} onPress={() => navigation.navigate('RefundsAndCancellations' as never)}>
+          <View style={styles.policyRowLeft}>
+            <MaterialCommunityIcons name="cash-refund" size={20} color={colors.textSecondary} />
+            <Text style={styles.policyText}>Refunds & Cancellations</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textSecondary} />
+        </Pressable>
       </View>
 
       {/* Logout */}
@@ -353,7 +451,57 @@ const styles = StyleSheet.create({
   logoutButton: {flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,59,48,0.12)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,59,48,0.3)', paddingVertical: spacing.md, marginTop: spacing.sm},
   logoutText: {fontFamily: fonts.primary, fontSize: fontSizes.body, fontWeight: fontWeights.semibold as any, color: '#FF3B30'},
   // Unauthenticated
-  logo: {width: 160, height: 48, marginBottom: spacing.lg},
-  title: {fontFamily: fonts.primary, fontSize: fontSizes.h2, fontWeight: fontWeights.semibold as any, color: colors.textPrimary, marginBottom: spacing.sm},
-  subtitle: {fontFamily: fonts.primary, fontSize: fontSizes.body, color: colors.textPrimary, opacity: 0.8},
+  unauthRoot: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 80,
+  },
+  unauthLogo: {
+    width: 200,
+    height: 60,
+    marginBottom: spacing.xl,
+  },
+  unauthTextContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
+  },
+  unauthTitle: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.h2,
+    fontWeight: fontWeights.bold as any,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  unauthSubtitle: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  loginButton: {
+    backgroundColor: colors.accentAqua,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    width: '100%',
+    alignItems: 'center',
+    shadowColor: colors.accentAqua,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  loginButtonText: {
+    fontFamily: fonts.primary,
+    fontSize: fontSizes.body,
+    fontWeight: fontWeights.bold as any,
+    color: colors.backgroundNavy,
+  },
+  // Policies
+  policyRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)'},
+  policyRowLeft: {flexDirection: 'row', alignItems: 'center', gap: 12},
+  policyText: {fontFamily: fonts.primary, fontSize: fontSizes.body, color: colors.textPrimary},
 });

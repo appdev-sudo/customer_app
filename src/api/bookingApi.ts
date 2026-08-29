@@ -45,6 +45,10 @@ export const getMyBookings = async (token: string) => {
     return apiFetch(`${API_BASE_URL}${API_ENDPOINTS.bookingsMe}`, token);
 };
 
+export const getMySubscriptions = async (token: string) => {
+    return apiFetch(`${API_BASE_URL}/api/subscriptions/me`, token);
+};
+
 export const getBookingById = async (token: string, id: string) => {
     return apiFetch(`${API_BASE_URL}${API_ENDPOINTS.bookingById(id)}`, token);
 };
