@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Modal,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
@@ -16,7 +17,34 @@ import {useAuth} from '../utils/authContext';
 import {colors} from '../theme/colors';
 import {fonts, fontSizes, fontWeights} from '../theme/typography';
 import {spacing} from '../theme/spacing';
-import {getMyBookings, getMySubscriptions} from '../api/bookingApi';
+import {getMyBookings, getMySubscriptions, scheduleSession} from '../api/bookingApi';
+
+// ── Time & Date Helpers ────────────────────────────────────────────────────────
+const generateDates = () => {
+  const dates = [];
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+};
+
+const TIME_SLOTS = [
+  '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', 
+  '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
+];
+
+const formatDayDateMonth = (date: Date) => {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return {
+      day: days[date.getDay()],
+      date: date.getDate(),
+      month: months[date.getMonth()]
+  };
+};
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<string, {label: string; color: string; icon: string}> = {
@@ -164,7 +192,7 @@ const BookingCard: React.FC<{booking: any}> = ({booking}) => {
 };
 
 // ── Subscription Card ─────────────────────────────────────────────────────────
-const SubscriptionCard: React.FC<{subscription: any}> = ({subscription}) => {
+const SubscriptionCard: React.FC<{subscription: any; onScheduleClick: (session: any) => void}> = ({subscription, onScheduleClick}) => {
   const [expanded, setExpanded] = useState(false);
   const statusColor = subscription.status === 'active' ? '#3B82F6' : '#10B981';
   
@@ -194,13 +222,20 @@ const SubscriptionCard: React.FC<{subscription: any}> = ({subscription}) => {
           {subscription.sessions.map((session: any) => (
             <View key={session._id} style={{marginBottom: 8, padding: 8, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 8}}>
               <Text style={{fontFamily: fonts.primary, fontSize: 13, color: colors.accentAqua, fontWeight: 'bold'}}>{session.sessionName}</Text>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4}}>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4, alignItems: 'center'}}>
                 <Text style={{fontFamily: fonts.primary, fontSize: 12, color: colors.textSecondary}}>
                   {session.preferredDate ? formatDate(session.preferredDate) : 'Unscheduled'}
                 </Text>
-                <Text style={{fontFamily: fonts.primary, fontSize: 12, color: STATUS_CONFIG[session.status]?.color || colors.textSecondary}}>
-                  {STATUS_CONFIG[session.status]?.label || session.status}
-                </Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+                  <Text style={{fontFamily: fonts.primary, fontSize: 12, color: STATUS_CONFIG[session.status]?.color || colors.textSecondary}}>
+                    {STATUS_CONFIG[session.status]?.label || session.status}
+                  </Text>
+                  {!session.preferredDate && session.status === 'pending' && (
+                    <Pressable onPress={() => onScheduleClick(session)} style={{backgroundColor: colors.accentAqua, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6}}>
+                      <Text style={{color: colors.backgroundNavy, fontSize: 12, fontWeight: 'bold'}}>Schedule</Text>
+                    </Pressable>
+                  )}
+                </View>
               </View>
             </View>
           ))}
@@ -218,6 +253,14 @@ export const ProfileScreen: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Scheduling State
+  const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
+  const [sessionToSchedule, setSessionToSchedule] = useState<any>(null);
+  const [selectedLocation, setSelectedLocation] = useState<'home'|'clinic'>('home');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
 
   const fetchBookings = useCallback(async () => {
     if (!token) {return;}
@@ -246,6 +289,43 @@ export const ProfileScreen: React.FC = () => {
       {text: 'Cancel', style: 'cancel'},
       {text: 'Logout', style: 'destructive', onPress: async () => { await logout(); }},
     ]);
+  };
+
+  const openScheduleModal = (session: any) => {
+    setSessionToSchedule(session);
+    setSelectedLocation('home');
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setScheduleModalVisible(true);
+  };
+
+  const handleScheduleSubmit = async () => {
+    if (!selectedDate || !selectedTime) {
+      Alert.alert('Incomplete', 'Please select a date and time slot.');
+      return;
+    }
+    if (selectedLocation === 'home' && (!user?.location?.address?.formattedAddress && !user?.location?.address?.street)) {
+      Alert.alert('Address Missing', 'Please add an address first.');
+      return;
+    }
+    
+    setScheduleLoading(true);
+    try {
+      if (!token) throw new Error('Not authenticated');
+      await scheduleSession(token, sessionToSchedule._id, {
+        locationType: selectedLocation,
+        preferredDate: selectedDate.toISOString(),
+        preferredTimeSlot: selectedTime,
+        address: selectedLocation === 'home' ? user.location.address : undefined,
+      });
+      setScheduleModalVisible(false);
+      Alert.alert('Success', 'Session scheduled successfully!');
+      fetchBookings();
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to schedule session.');
+    } finally {
+      setScheduleLoading(false);
+    }
   };
 
   if (!isAuthenticated || !user) {
@@ -333,7 +413,7 @@ export const ProfileScreen: React.FC = () => {
             {subscriptions.length > 0 && (
               <>
                 <Text style={styles.bookingGroupLabel}>⭐ Subscriptions</Text>
-                {subscriptions.map(s => <SubscriptionCard key={s._id} subscription={s} />)}
+                {subscriptions.map(s => <SubscriptionCard key={s._id} subscription={s} onScheduleClick={openScheduleModal} />)}
               </>
             )}
             {/* Active bookings first */}
@@ -395,6 +475,87 @@ export const ProfileScreen: React.FC = () => {
         <MaterialCommunityIcons name="logout" size={18} color="#FF3B30" style={{marginRight: 6}} />
         <Text style={styles.logoutText}>Logout</Text>
       </Pressable>
+
+      {/* Schedule Modal */}
+      <Modal visible={scheduleModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md}}>
+              <Text style={styles.modalTitle}>Schedule Session</Text>
+              <Pressable onPress={() => setScheduleModalVisible(false)}>
+                <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
+            </View>
+            
+            <Text style={{color: colors.textSecondary, marginBottom: spacing.lg}}>
+              {sessionToSchedule?.sessionName}
+            </Text>
+
+            <Text style={styles.sectionTitleModal}>Location</Text>
+            <View style={{flexDirection: 'row', gap: 12, marginBottom: spacing.lg}}>
+              <Pressable 
+                style={[styles.locationBtn, selectedLocation === 'home' && styles.locationBtnActive]} 
+                onPress={() => setSelectedLocation('home')}
+              >
+                <Text style={[styles.locationBtnText, selectedLocation === 'home' && styles.locationBtnTextActive]}>Home Service</Text>
+              </Pressable>
+              <Pressable 
+                style={[styles.locationBtn, selectedLocation === 'clinic' && styles.locationBtnActive]} 
+                onPress={() => setSelectedLocation('clinic')}
+              >
+                <Text style={[styles.locationBtnText, selectedLocation === 'clinic' && styles.locationBtnTextActive]}>Clinic Visit</Text>
+              </Pressable>
+            </View>
+
+            <Text style={styles.sectionTitleModal}>Select Date</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: spacing.lg}}>
+              {generateDates().map((date, index) => {
+                  const f = formatDayDateMonth(date);
+                  const isSelected = selectedDate?.toDateString() === date.toDateString();
+                  return (
+                      <Pressable
+                          key={index}
+                          onPress={() => setSelectedDate(date)}
+                          style={[styles.dateCard, isSelected && styles.dateCardActive]}>
+                          <Text style={[styles.dateDay, isSelected && styles.textActive]}>{f.day}</Text>
+                          <Text style={[styles.dateNum, isSelected && styles.textActive]}>{f.date}</Text>
+                          <Text style={[styles.dateMonth, isSelected && styles.textActive]}>{f.month}</Text>
+                      </Pressable>
+                  );
+              })}
+            </ScrollView>
+
+            <Text style={styles.sectionTitleModal}>Select Time</Text>
+            <View style={styles.timeGrid}>
+              {TIME_SLOTS.map((slot, index) => {
+                  const isSelected = selectedTime === slot;
+                  return (
+                      <Pressable
+                          key={index}
+                          onPress={() => setSelectedTime(slot)}
+                          style={[styles.timeCard, isSelected && styles.timeCardActive]}>
+                          <Text style={[styles.timeText, isSelected && styles.textActive]}>{slot}</Text>
+                      </Pressable>
+                  );
+              })}
+            </View>
+
+            {selectedLocation === 'home' && (
+              <View style={{marginTop: spacing.lg, padding: 12, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8}}>
+                <Text style={{color: colors.textSecondary, fontSize: 12, marginBottom: 4}}>Saved Address:</Text>
+                <Text style={{color: colors.textPrimary, fontSize: 13}}>
+                  {user?.location?.address?.formattedAddress || user?.location?.address?.street || "No address found. Please add one in settings."}
+                </Text>
+              </View>
+            )}
+
+            <Pressable onPress={handleScheduleSubmit} disabled={scheduleLoading} style={[styles.loginButton, {marginTop: spacing.xl}]}>
+              {scheduleLoading ? <ActivityIndicator color={colors.backgroundNavy} /> : <Text style={styles.loginButtonText}>Confirm Schedule</Text>}
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
     </ScrollView>
   );
 };
@@ -504,4 +665,24 @@ const styles = StyleSheet.create({
   policyRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)'},
   policyRowLeft: {flexDirection: 'row', alignItems: 'center', gap: 12},
   policyText: {fontFamily: fonts.primary, fontSize: fontSizes.body, color: colors.textPrimary},
+  
+  // Modal styles
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: colors.backgroundNavy, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing.xl, maxHeight: '90%' },
+  modalTitle: { fontFamily: fonts.primary, fontSize: fontSizes.h3, fontWeight: 'bold', color: colors.textPrimary },
+  sectionTitleModal: { fontFamily: fonts.primary, fontSize: fontSizes.body, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.md },
+  locationBtn: { flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center' },
+  locationBtnActive: { backgroundColor: colors.accentAqua, borderColor: colors.accentAqua },
+  locationBtnText: { color: colors.textSecondary, fontWeight: 'bold' },
+  locationBtnTextActive: { color: colors.backgroundNavy },
+  dateCard: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: spacing.md, marginRight: spacing.md, alignItems: 'center', width: 70, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  dateCardActive: { backgroundColor: colors.accentAqua, borderColor: colors.accentAqua },
+  dateDay: { fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
+  dateNum: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 4 },
+  dateMonth: { fontSize: 12, color: colors.textSecondary },
+  textActive: { color: colors.backgroundNavy, fontWeight: 'bold' },
+  timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  timeCard: { width: '31%', backgroundColor: 'rgba(255,255,255,0.05)', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: spacing.xs, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  timeCardActive: { backgroundColor: colors.accentAqua, borderColor: colors.accentAqua },
+  timeText: { color: colors.textPrimary, fontSize: 12 },
 });
