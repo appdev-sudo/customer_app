@@ -52,6 +52,9 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<'home'|'clinic'>('home');
+  const [selectedClinic, setSelectedClinic] = useState<string>('Vytalyou Powai');
+  const CLINICS = ['Vytalyou Powai', 'Vytalyou Juhu', 'Vytalyou Worli'];
   
   useEffect(() => {
     // Setup Cashfree callback
@@ -68,7 +71,9 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
                     serviceId,
                     preferredDate: selectedDate?.toISOString() || new Date().toISOString(),
                     preferredTimeSlot: selectedTime || '',
-                    address: user!.location!.address,
+                    address: selectedLocation === 'home' ? user!.location!.address : undefined,
+                    locationType: selectedLocation,
+                    clinicLocation: selectedLocation === 'clinic' ? selectedClinic : undefined,
                     paymentId: orderId, // Use Order ID as proof for now
                 });
                 
@@ -102,7 +107,7 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
       return;
     }
 
-    if (!user?.location?.address?.formattedAddress && !user?.location?.address?.street) {
+    if (selectedLocation === 'home' && (!user?.location?.address?.formattedAddress && !user?.location?.address?.street)) {
         Alert.alert(
             'Address Missing', 
             'Please add an address for the appointment.',
@@ -218,30 +223,70 @@ export const BookAppointmentScreen: React.FC<Props> = ({route, navigation}) => {
         })}
       </View>
 
-      {/* Address Selection */}
+      {/* Location Selection */}
       <Text style={styles.sectionTitle}>Location</Text>
-      <View style={styles.addressCard}>
-        {user?.location?.address?.formattedAddress || user?.location?.address?.street ? (
-            <View>
-                <View style={styles.addressHeader}>
-                    <View style={styles.radioOuter}>
-                        <View style={styles.radioInner} />
-                    </View>
-                    <Text style={styles.addressLabel}>Home / Saved Address</Text>
-                </View>
-                <Text style={styles.addressText}>
-                    {user.location.address.formattedAddress || `${user.location.address.street}, ${user.location.address.city}`}
-                </Text>
-                <Pressable onPress={() => navigation.navigate('AddAddress')} style={styles.changeAddressBtn}>
-                    <Text style={styles.changeAddressText}>Change Address</Text>
-                </Pressable>
-            </View>
-        ) : (
-            <Pressable onPress={() => navigation.navigate('AddAddress')} style={styles.addAddressBtn}>
-                <Text style={styles.addAddressText}>+ Add New Address</Text>
-            </Pressable>
-        )}
+      <View style={{flexDirection: 'row', gap: 12, marginBottom: spacing.md}}>
+        <Pressable 
+          style={[styles.locationBtn, selectedLocation === 'home' && styles.locationBtnActive]} 
+          onPress={() => setSelectedLocation('home')}
+        >
+          <Text style={[styles.locationBtnText, selectedLocation === 'home' && styles.locationBtnTextActive]}>Home Service</Text>
+        </Pressable>
+        <Pressable 
+          style={[styles.locationBtn, selectedLocation === 'clinic' && styles.locationBtnActive]} 
+          onPress={() => setSelectedLocation('clinic')}
+        >
+          <Text style={[styles.locationBtnText, selectedLocation === 'clinic' && styles.locationBtnTextActive]}>Clinic Visit</Text>
+        </Pressable>
       </View>
+
+      {selectedLocation === 'clinic' && (
+        <View style={{ marginBottom: spacing.lg }}>
+          <Text style={{color: colors.textSecondary, fontSize: 13, marginBottom: spacing.sm}}>Select Clinic:</Text>
+          <View style={{ gap: spacing.sm }}>
+            {CLINICS.map(clinic => (
+              <Pressable
+                key={clinic}
+                onPress={() => setSelectedClinic(clinic)}
+                style={[
+                  styles.locationBtn,
+                  { justifyContent: 'flex-start' },
+                  selectedClinic === clinic && styles.locationBtnActive
+                ]}
+              >
+                <Text style={[styles.locationBtnText, selectedClinic === clinic && styles.locationBtnTextActive]}>
+                  {clinic}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {selectedLocation === 'home' && (
+        <View style={styles.addressCard}>
+          {user?.location?.address?.formattedAddress || user?.location?.address?.street ? (
+              <View>
+                  <View style={styles.addressHeader}>
+                      <View style={styles.radioOuter}>
+                          <View style={styles.radioInner} />
+                      </View>
+                      <Text style={styles.addressLabel}>Home / Saved Address</Text>
+                  </View>
+                  <Text style={styles.addressText}>
+                      {user.location.address.formattedAddress || `${user.location.address.street}, ${user.location.address.city}`}
+                  </Text>
+                  <Pressable onPress={() => navigation.navigate('AddAddress')} style={styles.changeAddressBtn}>
+                      <Text style={styles.changeAddressText}>Change Address</Text>
+                  </Pressable>
+              </View>
+          ) : (
+              <Pressable onPress={() => navigation.navigate('AddAddress')} style={styles.addAddressBtn}>
+                  <Text style={styles.addAddressText}>+ Add New Address</Text>
+              </Pressable>
+          )}
+        </View>
+      )}
 
       {/* Pay Now Button */}
       <Pressable onPress={handleBook} style={styles.payButton} disabled={loading}>
@@ -322,6 +367,28 @@ const styles = StyleSheet.create({
   timeText: {
     color: colors.textPrimary,
     fontSize: 12,
+  },
+
+  locationBtn: {
+    flex: 1,
+    padding: spacing.md,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+  },
+  locationBtnActive: {
+    backgroundColor: colors.accentAqua,
+    borderColor: colors.accentAqua,
+  },
+  locationBtnText: {
+    color: colors.textSecondary,
+    fontSize: fontSizes.small,
+  },
+  locationBtnTextActive: {
+    color: colors.backgroundNavy,
+    fontWeight: 'bold',
   },
 
   addressCard: {

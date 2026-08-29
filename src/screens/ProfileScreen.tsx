@@ -257,6 +257,8 @@ export const ProfileScreen: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [selectedClinic, setSelectedClinic] = useState<string>('Vytalyou Powai');
+  const CLINICS = ['Vytalyou Powai', 'Vytalyou Juhu', 'Vytalyou Worli'];
 
   const fetchBookings = useCallback(async () => {
     if (!token) {return;}
@@ -310,6 +312,7 @@ export const ProfileScreen: React.FC = () => {
       if (!token) throw new Error('Not authenticated');
       await scheduleSession(token, sessionToSchedule._id, {
         locationType: selectedLocation,
+        clinicLocation: selectedLocation === 'clinic' ? selectedClinic : undefined,
         preferredDate: selectedDate.toISOString(),
         preferredTimeSlot: selectedTime,
         address: selectedLocation === 'home' ? user.location.address : undefined,
@@ -502,6 +505,35 @@ export const ProfileScreen: React.FC = () => {
                 <Text style={[styles.locationBtnText, selectedLocation === 'clinic' && styles.locationBtnTextActive]}>Clinic Visit</Text>
               </Pressable>
             </View>
+
+            {selectedLocation === 'clinic' && (
+              <View style={{ marginBottom: spacing.lg }}>
+                <Text style={{color: colors.textSecondary, fontSize: 13, marginBottom: spacing.sm}}>Select Clinic:</Text>
+                <View style={{ gap: spacing.sm }}>
+                  {CLINICS.map(clinic => (
+                    <Pressable
+                      key={clinic}
+                      onPress={() => setSelectedClinic(clinic)}
+                      style={[
+                        styles.locationBtn,
+                        { justifyContent: 'flex-start' },
+                        selectedClinic === clinic && styles.locationBtnActive
+                      ]}
+                    >
+                      <MaterialCommunityIcons 
+                        name={selectedClinic === clinic ? "check-circle" : "circle-outline"} 
+                        size={20} 
+                        color={selectedClinic === clinic ? colors.backgroundNavy : colors.textSecondary} 
+                        style={{ marginRight: spacing.sm }}
+                      />
+                      <Text style={[styles.locationBtnText, selectedClinic === clinic && styles.locationBtnTextActive]}>
+                        {clinic}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
 
             <Text style={styles.sectionTitleModal}>Select Date</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: spacing.lg}}>
