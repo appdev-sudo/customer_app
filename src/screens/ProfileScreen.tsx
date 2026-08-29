@@ -65,7 +65,7 @@ const formatDate = (iso: string) => {
 };
 
 // ── Booking Card ──────────────────────────────────────────────────────────────
-const BookingCard: React.FC<{booking: any}> = ({booking}) => {
+const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => void, isSubSession?: boolean}> = ({booking, onScheduleClick, isSubSession}) => {
   const [expanded, setExpanded] = useState(false);
   const status = STATUS_CONFIG[booking.status] ?? {label: booking.status, color: colors.textSecondary, icon: 'information-outline'};
   const nurse = booking.nurse && typeof booking.nurse === 'object' ? booking.nurse : null;
@@ -73,7 +73,7 @@ const BookingCard: React.FC<{booking: any}> = ({booking}) => {
   const showEndOtp = booking.status === 'in_progress' && booking.endOtp;
 
   return (
-    <Pressable onPress={() => setExpanded(e => !e)} style={styles.bookingCard}>
+    <Pressable onPress={() => setExpanded(e => !e)} style={[styles.bookingCard, isSubSession && { backgroundColor: 'transparent', borderWidth: 0, paddingHorizontal: 0, paddingVertical: 4, marginBottom: 0 }]}>
       {/* Header row */}
       <View style={styles.bookingCardHeader}>
         <View style={styles.bookingCardLeft}>
@@ -83,15 +83,22 @@ const BookingCard: React.FC<{booking: any}> = ({booking}) => {
           </View>
           <Text style={styles.bookingService} numberOfLines={1}>{booking.serviceTitle}</Text>
           <Text style={styles.bookingDate}>
-            {formatDate(booking.preferredDate)}
+            {booking.preferredDate ? formatDate(booking.preferredDate) : 'Unscheduled'}
             {booking.preferredTimeSlot ? `  ·  ${booking.preferredTimeSlot}` : ''}
           </Text>
         </View>
-        <MaterialCommunityIcons
-          name={expanded ? 'chevron-up' : 'chevron-down'}
-          size={20}
-          color={colors.textSecondary}
-        />
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
+          {!booking.preferredDate && booking.status === 'pending' && onScheduleClick && (
+            <Pressable onPress={() => onScheduleClick(booking)} style={{backgroundColor: colors.accentAqua, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6}}>
+              <Text style={{color: colors.backgroundNavy, fontSize: 12, fontWeight: 'bold'}}>Schedule</Text>
+            </Pressable>
+          )}
+          <MaterialCommunityIcons
+            name={expanded ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color={colors.textSecondary}
+          />
+        </View>
       </View>
 
       {/* Expanded details */}
@@ -220,23 +227,12 @@ const SubscriptionCard: React.FC<{subscription: any; onScheduleClick: (session: 
         <View style={styles.bookingDetails}>
           <View style={styles.divider} />
           {subscription.sessions.map((session: any) => (
-            <View key={session._id} style={{marginBottom: 8, padding: 8, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 8}}>
-              <Text style={{fontFamily: fonts.primary, fontSize: 13, color: colors.accentAqua, fontWeight: 'bold'}}>{session.sessionName}</Text>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 4, alignItems: 'center'}}>
-                <Text style={{fontFamily: fonts.primary, fontSize: 12, color: colors.textSecondary}}>
-                  {session.preferredDate ? formatDate(session.preferredDate) : 'Unscheduled'}
-                </Text>
-                <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-                  <Text style={{fontFamily: fonts.primary, fontSize: 12, color: STATUS_CONFIG[session.status]?.color || colors.textSecondary}}>
-                    {STATUS_CONFIG[session.status]?.label || session.status}
-                  </Text>
-                  {!session.preferredDate && session.status === 'pending' && (
-                    <Pressable onPress={() => onScheduleClick(session)} style={{backgroundColor: colors.accentAqua, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6}}>
-                      <Text style={{color: colors.backgroundNavy, fontSize: 12, fontWeight: 'bold'}}>Schedule</Text>
-                    </Pressable>
-                  )}
-                </View>
-              </View>
+            <View key={session._id} style={{marginBottom: 12, padding: 8, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)'}}>
+              <BookingCard 
+                booking={{...session, serviceTitle: session.sessionName}} 
+                onScheduleClick={onScheduleClick} 
+                isSubSession={true} 
+              />
             </View>
           ))}
         </View>
