@@ -683,11 +683,11 @@ const styles = StyleSheet.create({
   pendingNurse: {flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: spacing.sm},
   pendingNurseText: {fontFamily: fonts.primary, fontSize: fontSizes.small, color: colors.textSecondary},
   // OTP
-  otpContainer: {flexDirection: 'row', gap: 8, marginBottom: spacing.sm},
-  otpBox: {width: 42, height: 50, borderRadius: 10, backgroundColor: 'rgba(245,158,11,0.12)', borderWidth: 2, borderColor: 'rgba(245,158,11,0.4)', alignItems: 'center', justifyContent: 'center'},
+  otpContainer: {flexDirection: 'row', justifyContent: 'center', marginVertical: spacing.sm},
+  otpBox: {width: 40, height: 48, borderRadius: 8, marginHorizontal: 4, backgroundColor: 'rgba(245,158,11,0.12)', borderWidth: 1.5, borderColor: 'rgba(245,158,11,0.4)', alignItems: 'center', justifyContent: 'center'},
   otpBoxEnd: {backgroundColor: 'rgba(96,165,250,0.12)', borderColor: 'rgba(96,165,250,0.4)'},
-  otpDigit: {fontFamily: fonts.display, fontSize: fontSizes.h2, fontWeight: fontWeights.bold as any, color: '#F59E0B'},
-  otpHint: {fontFamily: fonts.primary, fontSize: fontSizes.small, color: colors.textSecondary},
+  otpDigit: {fontFamily: fonts.display, fontSize: 24, fontWeight: fontWeights.bold as any, color: '#F59E0B'},
+  otpHint: {fontFamily: fonts.primary, fontSize: fontSizes.small, color: colors.textSecondary, textAlign: 'center'},
   // Address/notes
   addressText: {fontFamily: fonts.primary, fontSize: fontSizes.small, color: colors.textSecondary, lineHeight: 18},
   // Empty state
