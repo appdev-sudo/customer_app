@@ -11,6 +11,8 @@ import {SplashScreen} from '../screens/SplashScreen';
 import {ContactUsScreen} from '../screens/ContactUsScreen';
 import {TermsAndConditionsScreen} from '../screens/TermsAndConditionsScreen';
 import {RefundsAndCancellationsScreen} from '../screens/RefundsAndCancellationsScreen';
+import {AddAddressScreen} from '../screens/AddAddressScreen';
+
 const Stack = createNativeStackNavigator();
 
 const RootNavigatorContent: React.FC = () => {
@@ -51,6 +53,7 @@ const RootNavigatorContent: React.FC = () => {
         <Stack.Screen name="ContactUs" component={ContactUsScreen} />
         <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
         <Stack.Screen name="RefundsAndCancellations" component={RefundsAndCancellationsScreen} />
+        <Stack.Screen name="AddAddress" component={AddAddressScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
