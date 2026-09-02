@@ -8,7 +8,9 @@ import {getOnboardingCompleted} from '../utils/onboardingStorage';
 import {AuthProvider, useAuth} from '../utils/authContext';
 import {colors} from '../theme/colors';
 import {SplashScreen} from '../screens/SplashScreen';
-
+import {ContactUsScreen} from '../screens/ContactUsScreen';
+import {TermsAndConditionsScreen} from '../screens/TermsAndConditionsScreen';
+import {RefundsAndCancellationsScreen} from '../screens/RefundsAndCancellationsScreen';
 const Stack = createNativeStackNavigator();
 
 const RootNavigatorContent: React.FC = () => {
@@ -46,6 +48,9 @@ const RootNavigatorContent: React.FC = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="AppTabs" component={AppTabs} />
         <Stack.Screen name="AuthStack" component={AuthStack} />
+        <Stack.Screen name="ContactUs" component={ContactUsScreen} />
+        <Stack.Screen name="TermsAndConditions" component={TermsAndConditionsScreen} />
+        <Stack.Screen name="RefundsAndCancellations" component={RefundsAndCancellationsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

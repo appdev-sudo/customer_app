@@ -182,6 +182,28 @@ const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => v
             </View>
           )}
 
+          {/* Payment Details */}
+          <View style={styles.detailSection}>
+            <Text style={styles.detailSectionTitle}>
+              <MaterialCommunityIcons name="credit-card-outline" size={14} color={colors.accentAqua} />
+              {'  '}Payment Information
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Total Amount:</Text>
+              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.totalAmount || 0}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Amount Paid:</Text>
+              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.amountPaid || 0}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Status:</Text>
+              <Text style={{ fontSize: 13, fontWeight: 'bold', color: booking.paymentStatus === 'paid' ? '#10B981' : '#F59E0B' }}>
+                {(booking.paymentStatus || 'pending').toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
           {/* Notes */}
           {booking.notes && (
             <View style={styles.detailSection}>
@@ -223,10 +245,33 @@ const SubscriptionCard: React.FC<{subscription: any; onScheduleClick: (session: 
         />
       </Pressable>
       
-      {expanded && subscription.sessions && (
+      {expanded && (
         <View style={styles.bookingDetails}>
           <View style={styles.divider} />
-          {subscription.sessions.map((session: any) => (
+          
+          {/* Payment Details */}
+          <View style={styles.detailSection}>
+            <Text style={styles.detailSectionTitle}>
+              <MaterialCommunityIcons name="credit-card-outline" size={14} color={colors.accentAqua} />
+              {'  '}Payment Information
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Total Amount:</Text>
+              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {subscription.totalAmount || 0}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Amount Paid:</Text>
+              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {subscription.amountPaid || 0}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Status:</Text>
+              <Text style={{ fontSize: 13, fontWeight: 'bold', color: subscription.paymentStatus === 'paid' ? '#10B981' : '#F59E0B' }}>
+                {(subscription.paymentStatus || 'pending').toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
+          {subscription.sessions && subscription.sessions.map((session: any) => (
             <View key={session._id} style={{marginBottom: 12, padding: 8, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)'}}>
               <BookingCard 
                 booking={{...session, serviceTitle: session.sessionName}} 
