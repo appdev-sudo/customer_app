@@ -190,11 +190,11 @@ const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => v
             </Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Total Amount:</Text>
-              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.totalAmount || 0}</Text>
+              <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.totalAmount || 0}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Amount Paid:</Text>
-              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.amountPaid || 0}</Text>
+              <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.amountPaid || 0}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Status:</Text>
@@ -257,11 +257,11 @@ const SubscriptionCard: React.FC<{subscription: any; onScheduleClick: (session: 
             </Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Total Amount:</Text>
-              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {subscription.totalAmount || 0}</Text>
+              <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {subscription.totalAmount || 0}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Amount Paid:</Text>
-              <Text style={{ color: colors.text, fontSize: 13, fontWeight: 'bold' }}>Rs. {subscription.amountPaid || 0}</Text>
+              <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {subscription.amountPaid || 0}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Status:</Text>
@@ -530,101 +530,111 @@ export const ProfileScreen: React.FC = () => {
                 <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
               </Pressable>
             </View>
-            
-            <Text style={{color: colors.textSecondary, marginBottom: spacing.lg}}>
-              {sessionToSchedule?.sessionName}
-            </Text>
 
-            <Text style={styles.sectionTitleModal}>Location</Text>
-            <View style={{flexDirection: 'row', gap: 12, marginBottom: spacing.lg}}>
-              <Pressable 
-                style={[styles.locationBtn, selectedLocation === 'home' && styles.locationBtnActive]} 
-                onPress={() => setSelectedLocation('home')}
-              >
-                <Text style={[styles.locationBtnText, selectedLocation === 'home' && styles.locationBtnTextActive]}>Home Service</Text>
-              </Pressable>
-              <Pressable 
-                style={[styles.locationBtn, selectedLocation === 'clinic' && styles.locationBtnActive]} 
-                onPress={() => setSelectedLocation('clinic')}
-              >
-                <Text style={[styles.locationBtnText, selectedLocation === 'clinic' && styles.locationBtnTextActive]}>Clinic Visit</Text>
-              </Pressable>
-            </View>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+              <Text style={{color: colors.textSecondary, marginBottom: spacing.lg}}>
+                {sessionToSchedule?.sessionName}
+              </Text>
 
-            {selectedLocation === 'clinic' && (
-              <View style={{ marginBottom: spacing.lg }}>
-                <Text style={{color: colors.textSecondary, fontSize: 13, marginBottom: spacing.sm}}>Select Clinic:</Text>
-                <View style={{ gap: spacing.sm }}>
-                  {CLINICS.map(clinic => (
-                    <Pressable
-                      key={clinic}
-                      onPress={() => setSelectedClinic(clinic)}
-                      style={[
-                        styles.locationBtn,
-                        { justifyContent: 'flex-start' },
-                        selectedClinic === clinic && styles.locationBtnActive
-                      ]}
-                    >
-                      <MaterialCommunityIcons 
-                        name={selectedClinic === clinic ? "check-circle" : "circle-outline"} 
-                        size={20} 
-                        color={selectedClinic === clinic ? colors.backgroundNavy : colors.textSecondary} 
-                        style={{ marginRight: spacing.sm }}
-                      />
-                      <Text style={[styles.locationBtnText, selectedClinic === clinic && styles.locationBtnTextActive]}>
-                        {clinic}
-                      </Text>
-                    </Pressable>
-                  ))}
+              <Text style={styles.sectionTitleModal}>Location</Text>
+              <View style={{flexDirection: 'row', gap: 12, marginBottom: spacing.lg}}>
+                <Pressable 
+                  style={[styles.locationBtn, selectedLocation === 'home' && styles.locationBtnActive]} 
+                  onPress={() => setSelectedLocation('home')}
+                >
+                  <Text style={[styles.locationBtnText, selectedLocation === 'home' && styles.locationBtnTextActive]}>Home Service</Text>
+                </Pressable>
+                <Pressable 
+                  style={[styles.locationBtn, selectedLocation === 'clinic' && styles.locationBtnActive]} 
+                  onPress={() => setSelectedLocation('clinic')}
+                >
+                  <Text style={[styles.locationBtnText, selectedLocation === 'clinic' && styles.locationBtnTextActive]}>Clinic Visit</Text>
+                </Pressable>
+              </View>
+
+              {selectedLocation === 'clinic' && (
+                <View style={{ marginBottom: spacing.lg }}>
+                  <Text style={{color: colors.textSecondary, fontSize: 13, marginBottom: spacing.sm}}>Select Clinic:</Text>
+                  <View style={{ gap: spacing.sm }}>
+                    {CLINICS.map(clinic => (
+                      <Pressable
+                        key={clinic}
+                        onPress={() => setSelectedClinic(clinic)}
+                        style={[
+                          styles.locationBtn,
+                          { justifyContent: 'flex-start', flexDirection: 'row' },
+                          selectedClinic === clinic && styles.locationBtnActive
+                        ]}
+                      >
+                        <MaterialCommunityIcons 
+                          name={selectedClinic === clinic ? "check-circle" : "circle-outline"} 
+                          size={20} 
+                          color={selectedClinic === clinic ? colors.backgroundNavy : colors.textPrimary} 
+                          style={{ marginRight: spacing.sm }}
+                        />
+                        <Text style={[styles.locationBtnText, selectedClinic === clinic && styles.locationBtnTextActive]}>
+                          {clinic}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
 
-            <Text style={styles.sectionTitleModal}>Select Date</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: spacing.lg}}>
-              {generateDates().map((date, index) => {
-                  const f = formatDayDateMonth(date);
-                  const isSelected = selectedDate?.toDateString() === date.toDateString();
-                  return (
-                      <Pressable
-                          key={index}
-                          onPress={() => setSelectedDate(date)}
-                          style={[styles.dateCard, isSelected && styles.dateCardActive]}>
-                          <Text style={[styles.dateDay, isSelected && styles.textActive]}>{f.day}</Text>
-                          <Text style={[styles.dateNum, isSelected && styles.textActive]}>{f.date}</Text>
-                          <Text style={[styles.dateMonth, isSelected && styles.textActive]}>{f.month}</Text>
-                      </Pressable>
-                  );
-              })}
+              <Text style={styles.sectionTitleModal}>Select Date</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom: spacing.lg}}>
+                {generateDates().map((date, index) => {
+                    const f = formatDayDateMonth(date);
+                    const isSelected = selectedDate?.toDateString() === date.toDateString();
+                    return (
+                        <Pressable
+                            key={index}
+                            onPress={() => setSelectedDate(date)}
+                            style={[styles.dateCard, isSelected && styles.dateCardActive]}>
+                            <Text style={[styles.dateDay, isSelected && styles.textActive]}>{f.day}</Text>
+                            <Text style={[styles.dateNum, isSelected && styles.textActive]}>{f.date}</Text>
+                            <Text style={[styles.dateMonth, isSelected && styles.textActive]}>{f.month}</Text>
+                        </Pressable>
+                    );
+                })}
+              </ScrollView>
+
+              <Text style={styles.sectionTitleModal}>Select Time</Text>
+              <View style={styles.timeGrid}>
+                {TIME_SLOTS.map((slot, index) => {
+                    const isSelected = selectedTime === slot;
+                    return (
+                        <Pressable
+                            key={index}
+                            onPress={() => setSelectedTime(slot)}
+                            style={[styles.timeCard, isSelected && styles.timeCardActive]}>
+                            <Text style={[styles.timeText, isSelected && styles.textActive]}>{slot}</Text>
+                        </Pressable>
+                    );
+                })}
+              </View>
+
+              {selectedLocation === 'home' && (
+                <View style={{marginTop: spacing.lg, padding: 12, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8}}>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4}}>
+                    <Text style={{color: colors.textSecondary, fontSize: 12}}>Saved Address:</Text>
+                    <Pressable onPress={() => {
+                      setScheduleModalVisible(false);
+                      (navigation as any).navigate('AddAddress');
+                    }}>
+                      <Text style={{color: colors.accentAqua, fontSize: 12, fontWeight: 'bold'}}>+ Add New</Text>
+                    </Pressable>
+                  </View>
+                  <Text style={{color: colors.textPrimary, fontSize: 13}}>
+                    {user?.location?.address?.formattedAddress || user?.location?.address?.street || "No address found. Please add one in settings."}
+                  </Text>
+                </View>
+              )}
+
+              <Pressable onPress={handleScheduleSubmit} disabled={scheduleLoading} style={[styles.loginButton, {marginTop: spacing.xl}]}>
+                {scheduleLoading ? <ActivityIndicator color={colors.backgroundNavy} /> : <Text style={styles.loginButtonText}>Confirm Schedule</Text>}
+              </Pressable>
             </ScrollView>
-
-            <Text style={styles.sectionTitleModal}>Select Time</Text>
-            <View style={styles.timeGrid}>
-              {TIME_SLOTS.map((slot, index) => {
-                  const isSelected = selectedTime === slot;
-                  return (
-                      <Pressable
-                          key={index}
-                          onPress={() => setSelectedTime(slot)}
-                          style={[styles.timeCard, isSelected && styles.timeCardActive]}>
-                          <Text style={[styles.timeText, isSelected && styles.textActive]}>{slot}</Text>
-                      </Pressable>
-                  );
-              })}
-            </View>
-
-            {selectedLocation === 'home' && (
-              <View style={{marginTop: spacing.lg, padding: 12, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8}}>
-                <Text style={{color: colors.textSecondary, fontSize: 12, marginBottom: 4}}>Saved Address:</Text>
-                <Text style={{color: colors.textPrimary, fontSize: 13}}>
-                  {user?.location?.address?.formattedAddress || user?.location?.address?.street || "No address found. Please add one in settings."}
-                </Text>
-              </View>
-            )}
-
-            <Pressable onPress={handleScheduleSubmit} disabled={scheduleLoading} style={[styles.loginButton, {marginTop: spacing.xl}]}>
-              {scheduleLoading ? <ActivityIndicator color={colors.backgroundNavy} /> : <Text style={styles.loginButtonText}>Confirm Schedule</Text>}
-            </Pressable>
           </View>
         </View>
       </Modal>
@@ -746,14 +756,14 @@ const styles = StyleSheet.create({
   sectionTitleModal: { fontFamily: fonts.primary, fontSize: fontSizes.body, fontWeight: 'bold', color: colors.textPrimary, marginBottom: spacing.md },
   locationBtn: { flex: 1, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', alignItems: 'center' },
   locationBtnActive: { backgroundColor: colors.accentAqua, borderColor: colors.accentAqua },
-  locationBtnText: { color: colors.textSecondary, fontWeight: 'bold' },
+  locationBtnText: { color: colors.textPrimary, fontWeight: 'bold' },
   locationBtnTextActive: { color: colors.backgroundNavy },
   dateCard: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: spacing.md, marginRight: spacing.md, alignItems: 'center', width: 70, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   dateCardActive: { backgroundColor: colors.accentAqua, borderColor: colors.accentAqua },
-  dateDay: { fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
+  dateDay: { fontSize: 12, color: colors.textPrimary, marginBottom: 4, opacity: 0.8 },
   dateNum: { fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 4 },
-  dateMonth: { fontSize: 12, color: colors.textSecondary },
-  textActive: { color: colors.backgroundNavy, fontWeight: 'bold' },
+  dateMonth: { fontSize: 12, color: colors.textPrimary, opacity: 0.8 },
+  textActive: { color: colors.backgroundNavy, fontWeight: 'bold', opacity: 1 },
   timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   timeCard: { width: '31%', backgroundColor: 'rgba(255,255,255,0.05)', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginBottom: spacing.xs, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   timeCardActive: { backgroundColor: colors.accentAqua, borderColor: colors.accentAqua },
