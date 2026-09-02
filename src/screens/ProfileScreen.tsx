@@ -183,26 +183,28 @@ const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => v
           )}
 
           {/* Payment Details */}
-          <View style={styles.detailSection}>
-            <Text style={styles.detailSectionTitle}>
-              <MaterialCommunityIcons name="credit-card-outline" size={14} color={colors.accentAqua} />
-              {'  '}Payment Information
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Total Amount:</Text>
-              <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.totalAmount || 0}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Amount Paid:</Text>
-              <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.amountPaid || 0}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Status:</Text>
-              <Text style={{ fontSize: 13, fontWeight: 'bold', color: booking.paymentStatus === 'paid' ? '#10B981' : '#F59E0B' }}>
-                {(booking.paymentStatus || 'pending').toUpperCase()}
+          {!isSubSession && (
+            <View style={styles.detailSection}>
+              <Text style={styles.detailSectionTitle}>
+                <MaterialCommunityIcons name="credit-card-outline" size={14} color={colors.accentAqua} />
+                {'  '}Payment Information
               </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Total Amount:</Text>
+                <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.totalAmount || 0}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Amount Paid:</Text>
+                <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: 'bold' }}>Rs. {booking.amountPaid || 0}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Status:</Text>
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: booking.paymentStatus === 'paid' ? '#10B981' : '#F59E0B' }}>
+                  {(booking.paymentStatus || 'pending').toUpperCase()}
+                </Text>
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Notes */}
           {booking.notes && (
@@ -360,7 +362,7 @@ export const ProfileScreen: React.FC = () => {
         clinicLocation: selectedLocation === 'clinic' ? selectedClinic : undefined,
         preferredDate: selectedDate.toISOString(),
         preferredTimeSlot: selectedTime,
-        address: selectedLocation === 'home' ? user.location.address : undefined,
+        address: selectedLocation === 'home' ? user?.location?.address : undefined,
       });
       setScheduleModalVisible(false);
       Alert.alert('Success', 'Session scheduled successfully!');
