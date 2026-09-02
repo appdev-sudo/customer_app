@@ -69,8 +69,8 @@ const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => v
   const [expanded, setExpanded] = useState(false);
   const status = STATUS_CONFIG[booking.status] ?? {label: booking.status, color: colors.textSecondary, icon: 'information-outline'};
   const nurse = booking.nurse && typeof booking.nurse === 'object' ? booking.nurse : null;
-  const showStartOtp = ['assigned', 'accepted', 'in_progress'].includes(booking.status) && booking.startOtp;
-  const showEndOtp = booking.status === 'in_progress' && booking.endOtp;
+  const showStartOtp = (['assigned', 'accepted', 'in_progress'].includes(booking.status) || (booking.locationType === 'clinic' && booking.status !== 'completed' && booking.status !== 'cancelled' && booking.status !== 'rejected')) && booking.startOtp;
+  const showEndOtp = (booking.status === 'in_progress' || (booking.locationType === 'clinic' && booking.status !== 'completed' && booking.status !== 'cancelled' && booking.status !== 'rejected')) && booking.endOtp;
 
   return (
     <Pressable onPress={() => setExpanded(e => !e)} style={[styles.bookingCard, isSubSession && { backgroundColor: 'transparent', borderWidth: 0, paddingHorizontal: 0, paddingVertical: 4, marginBottom: 0 }]}>
