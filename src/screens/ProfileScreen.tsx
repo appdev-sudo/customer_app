@@ -69,8 +69,8 @@ const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => v
   const [expanded, setExpanded] = useState(false);
   const status = STATUS_CONFIG[booking.status] ?? {label: booking.status, color: colors.textSecondary, icon: 'information-outline'};
   const nurse = booking.nurse && typeof booking.nurse === 'object' ? booking.nurse : null;
-  const showStartOtp = (['assigned', 'accepted', 'in_progress'].includes(booking.status) || (booking.locationType === 'clinic' && booking.status !== 'completed' && booking.status !== 'cancelled' && booking.status !== 'rejected')) && booking.startOtp;
-  const showEndOtp = (booking.status === 'in_progress' || (booking.locationType === 'clinic' && booking.status !== 'completed' && booking.status !== 'cancelled' && booking.status !== 'rejected')) && booking.endOtp;
+  const showStartOtp = ['assigned', 'accepted', 'in_progress'].includes(booking.status) && booking.startOtp && booking.locationType !== 'clinic';
+  const showEndOtp = booking.status === 'in_progress' && booking.endOtp && booking.locationType !== 'clinic';
 
   return (
     <Pressable onPress={() => setExpanded(e => !e)} style={[styles.bookingCard, isSubSession && { backgroundColor: 'transparent', borderWidth: 0, paddingHorizontal: 0, paddingVertical: 4, marginBottom: 0 }]}>
@@ -127,7 +127,7 @@ const BookingCard: React.FC<{booking: any, onScheduleClick?: (session: any) => v
               </View>
             </View>
           ) : (
-            booking.status === 'pending' || booking.status === 'confirmed' ? (
+            (booking.status === 'pending' || booking.status === 'confirmed') && booking.locationType !== 'clinic' ? (
               <View style={styles.pendingNurse}>
                 <MaterialCommunityIcons name="account-search-outline" size={18} color={colors.textSecondary} />
                 <Text style={styles.pendingNurseText}>Nurse will be assigned shortly</Text>
